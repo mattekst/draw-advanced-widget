@@ -1,8 +1,8 @@
-import { React, AllWidgetProps, jsx, WidgetState, getAppStore, appActions, MutableStoreManager } from 'jimu-core';
+import { React, AllWidgetProps, jsx, WidgetState, getAppStore, appActions, MutableStoreManager, defaultMessages as jimuCoreMessages } from 'jimu-core';
 import { IMConfig, DrawMode, StorageScope } from '../config';
 import {
 	Icon, Button, TextInput, NumericInput, Switch, TextAlignValue, Popper, Checkbox,
-	Slider, Label, defaultMessages, AdvancedButtonGroup, Select, Option, CollapsablePanel
+	Slider, Label, AdvancedButtonGroup, Select, Option, CollapsablePanel, defaultMessages as jimuUIMessages
 } from 'jimu-ui';
 import { TrashOutlined } from 'jimu-icons/outlined/editor/trash';
 import { ArrowRedoOutlined } from 'jimu-icons/outlined/directional/arrow-redo';
@@ -14,7 +14,7 @@ import { CopyOutlined } from 'jimu-icons/outlined/editor/copy';
 const SettingOutlined = require('jimu-icons/svg/outlined/application/setting.svg');
 import { JimuMapView, JimuMapViewComponent } from 'jimu-arcgis';
 import { getStyle } from './lib/style';
-import defMessages from './translations/default';
+import defaultMessages from './translations/default';
 import SketchViewModel from 'esri/widgets/Sketch/SketchViewModel';
 import { SymbolSelector, JimuSymbolType } from 'jimu-ui/advanced/map';
 import { InputUnit } from 'jimu-ui/advanced/style-setting-components';
@@ -48,6 +48,9 @@ import * as lengthOperator from 'esri/geometry/operators/lengthOperator';
 import * as geodeticLengthOperator from 'esri/geometry/operators/geodeticLengthOperator';
 import * as areaOperator from 'esri/geometry/operators/areaOperator';
 import * as geodeticAreaOperator from 'esri/geometry/operators/geodeticAreaOperator';
+
+//Combine defaultMessages from Jimu-UI and Jimu-Core with the widgets defaultMessages
+const defMessages = Object.assign({}, jimuCoreMessages, jimuUIMessages, defaultMessages);
 
 // EB 1.21's editor occasionally loses ArcGIS static factory members even though
 // they exist at runtime. These casts restore editor typing without changing JS.
@@ -827,7 +830,7 @@ export default class Widget extends React.PureComponent<WidgetProps, States> {
 					className='drawToolbarDiv'
 					id="symbol-style-heading"
 				>
-					Change Symbol Style:
+					Change Symbol Style/Stil:
 				</h6>
 				<div
 					className="myss border"
@@ -7988,6 +7991,7 @@ export default class Widget extends React.PureComponent<WidgetProps, States> {
 	}
 
 	setDrawToolBtnState = (toolBtn: 'point' | 'polyline' | 'freepolyline' | 'extent' | 'polygon' | 'circle' | 'freepolygon' | 'text' | '') => {
+		console.log('defMessages: ', defMessages);
 		// Exit the custom curve line tool whenever any draw tool is (re)selected,
 		// so the line button and another tool never show active simultaneously.
 		this._deactivateCurveTool();
@@ -8482,7 +8486,7 @@ export default class Widget extends React.PureComponent<WidgetProps, States> {
 								</div>
 							) : (
 								<div>
-									<h5 id="mode-heading">No Drawings Yet</h5>
+									<h5 id="mode-heading">No Drawings Yet - {this.nls('widgetLoadError')}</h5>
 									<h6 aria-describedby="mode-heading">Select a Drawing Style to Get Started.</h6>
 								</div>
 							)}
@@ -8734,7 +8738,7 @@ export default class Widget extends React.PureComponent<WidgetProps, States> {
 									<CopyOutlined aria-hidden="true" style={{ marginRight: '4px' }} />
 									{this.state.copyModeActive && !this.state.selectedCopyLayerId
 										? (this.state.copySelectionMode === 'multiple' ? 'Selecting...' : 'Copying...')
-										: 'Copy'}
+										: this.nls('copy')}
 								</span>
 							</Button>
 							{/* Copy From — layer-first mode */}
@@ -10030,7 +10034,7 @@ export default class Widget extends React.PureComponent<WidgetProps, States> {
 							</div>
 						</div>
 						<Label id="font-opacity-label">
-							Opacity:
+							{this.nls('drawToolOpacity')}:
 							<div className='w-100 d-flex justify-content-between align-items-center mb-2 border' role="group" aria-labelledby="font-opacity-label">
 								<Slider
 									size='default'
@@ -10041,10 +10045,7 @@ export default class Widget extends React.PureComponent<WidgetProps, States> {
 									hideThumb={false}
 									className='mr-2'
 									style={{ width: 'calc(100% - 80px)' }}
-									title={`${this.props.intl.formatMessage({
-										id: 'drawToolOpacity',
-										defaultMessage: defaultMessages.drawToolOpacity
-									})}: ${100 * this.state.fontOpacity}%`}
+									title={`${this.nls('drawToolOpacity')}: ${100 * this.state.fontOpacity}%`}
 									onChange={(e) => this.updateSymbolOpacity(e.currentTarget.value)}
 									aria-label={`Text opacity slider, current value: ${Math.round(100 * this.state.fontOpacity)}%`}
 									aria-valuemin={0}
@@ -10281,10 +10282,7 @@ export default class Widget extends React.PureComponent<WidgetProps, States> {
 										hideThumb={false}
 										className='mr-2'
 										style={{ width: 'calc(100% - 80px)' }}
-										title={`${this.nls('fontHalo')} ${this.props.intl.formatMessage({
-											id: 'drawToolOpacity',
-											defaultMessage: defaultMessages.drawToolOpacity
-										})}: ${100 * this.state.fontHaloOpacity}%`}
+										title={`${this.nls('fontHalo')} ${this.nls('drawToolOpacity')}: ${100 * this.state.fontHaloOpacity}%`}
 										onChange={(e) => {
 											if (this.state.fontHaloEnabled) {
 												this.updateSymbolHaloOpacity(e.currentTarget.value);
