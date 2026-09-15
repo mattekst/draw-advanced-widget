@@ -11,7 +11,6 @@ import GridControls from 'esri/widgets/support/GridControls';
 interface SnappingControlsProps {
     jimuMapView: JimuMapView;
     sketchViewModel: any;
-    nls: (id: string, values?: Record<string, any>) => string;
 }
 
 // Screen reader only styles for visually hidden but accessible text
@@ -28,7 +27,6 @@ const srOnlyStyles: React.CSSProperties = {
 };
 
 export const SnappingControls = (props: SnappingControlsProps): React.ReactElement => {
-    const nls = props.nls;
     const [enabled, setEnabled] = React.useState(false);
     const [snapSourcesCount, setSnapSourcesCount] = React.useState(0);
     const [error, setError] = React.useState<string | null>(null);
@@ -184,23 +182,23 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
         setIsLoading(true);
         setError(null);
         processedLayerKeys.current.clear();
-        announce(nls('snappingConfiguring'), 'polite');
+        announce('Configuring snapping, please wait...', 'polite');
 
         const view = props.jimuMapView?.view;
         const sketchVM = props.sketchViewModel;
 
         if (!view) {
-            const errorMsg = nls('mapViewUnavailable');
+            const errorMsg = 'Map view is not available.';
             setError(errorMsg);
             setIsLoading(false);
-            announce(nls('errorPrefix') + errorMsg, 'assertive');
+            announce(`Error: ${errorMsg}`, 'assertive');
             return;
         }
         if (!sketchVM) {
-            const errorMsg = nls('sketchViewModelUnavailable');
+            const errorMsg = 'SketchViewModel is not available.';
             setError(errorMsg);
             setIsLoading(false);
-            announce(nls('errorPrefix') + errorMsg, 'assertive');
+            announce(`Error: ${errorMsg}`, 'assertive');
             return;
         }
 
@@ -247,17 +245,17 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
 
             setSnapSourcesCount(snapSources.length);
             if (snapSources.length === 0) {
-                const warningMsg = nls('noSnappableLayers');
+                const warningMsg = 'No visible snappable layers found.';
                 setError(warningMsg);
-                announce(nls('warningPrefix') + warningMsg, 'polite');
+                announce(`Warning: ${warningMsg}`, 'polite');
             } else {
-                announce(nls('snappingEnabledWithLayers', { count: snapSources.length, plural: snapSources.length !== 1 ? 's' : '' }), 'polite');
+                announce(`Snapping enabled with ${snapSources.length} layer${snapSources.length !== 1 ? 's' : ''} available for snapping.`, 'polite');
             }
         } catch (err: any) {
             console.error('Error configuring snapping:', err);
             const errorMsg = `Snapping failed: ${err.message}`;
             setError(errorMsg);
-            announce(nls('errorPrefix') + errorMsg, 'assertive');
+            announce(`Error: ${errorMsg}`, 'assertive');
         } finally {
             setIsLoading(false);
         }
@@ -273,13 +271,13 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
         }
 
         setEnabled(newState);
-        announce(nls(newState ? 'snappingEnabled' : 'snappingDisabled'), 'polite');
+        announce(newState ? 'Snapping enabled' : 'Snapping disabled', 'polite');
     };
 
     const handleGridToggle = () => {
         // Prevent toggling grid on if snapping is disabled
         if (!enabled && !gridEnabled) {
-            announce(nls('enableSnappingFirst'), 'assertive');
+            announce('Enable snapping first to use the grid overlay.', 'assertive');
             return;
         }
 
@@ -298,7 +296,7 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
             }
         }
 
-        announce(nls(newState ? 'gridOverlayEnabled' : 'gridOverlayDisabled'), 'polite');
+        announce(newState ? 'Grid overlay enabled' : 'Grid overlay disabled', 'polite');
     };
 
     /**
@@ -548,7 +546,7 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
         <div
             className='drawToolbarDiv'
             role="region"
-            aria-label={nls('snappingGridControls')}
+            aria-label="Snapping and Grid Controls"
         >
             {/* Live region for screen reader announcements */}
             <div
@@ -563,11 +561,11 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
             {/* Wrapper with tooltip for CollapsableCheckbox */}
             <div
                 title={enabled
-                    ? nls('disableSnappingTitle')
-                    : nls('enableSnappingTitle')}
+                    ? 'Click to disable snapping. When enabled, your cursor will snap to nearby feature vertices, edges, and intersections while drawing.'
+                    : 'Click to enable snapping. Snapping helps you draw precisely by automatically aligning to nearby features.'}
             >
                 <CollapsableCheckbox
-                    label={nls(enabled ? 'disableSnapping' : 'enableSnapping')}
+                    label={enabled ? 'Disable Snapping' : 'Enable Snapping'}
                     checked={enabled}
                     onCheckedChange={handleToggle}
                     disableActionForUnchecked
@@ -582,19 +580,19 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                         id={ids.snappingPanel}
                         className='ml-3 my-1'
                         role="group"
-                        aria-label={nls('snappingOptionsSettings')}
+                        aria-label="Snapping options and settings"
                     >
                         {/* Instructions list with accessibility */}
                         <ul
                             id={ids.snappingInstructions}
                             className='text-dark m-0 pl-3 small'
-                            aria-label={nls('snappingInstructions')}
+                            aria-label="Snapping keyboard shortcuts and instructions"
                         >
                             <li>
-                                {nls('snappingModifierInstruction')}
+                                Hold <strong><kbd>Ctrl</kbd></strong> (Windows) or <strong><kbd>Cmd</kbd></strong> (Mac) to temporarily disable snapping while drawing.
                             </li>
                             <li>
-                                {nls('snappingAlignmentInstruction')}
+                                Snap to feature vertices, edges, and intersections while drawing for precise alignment.
                             </li>
                         </ul>
 
@@ -606,8 +604,8 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                 aria-busy="true"
                                 aria-live="polite"
                             >
-                                <span style={srOnlyStyles}>{nls('loading')}</span>
-                                {nls('configuringSnapping')}
+                                <span style={srOnlyStyles}>Loading:</span>
+                                Configuring snapping...
                             </p>
                         )}
 
@@ -632,7 +630,7 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                 style={srOnlyStyles}
                                 role="status"
                             >
-                                {nls('snappingActiveStatus', { count: snapSourcesCount })}
+                                Snapping is active with {snapSourcesCount} layer{snapSourcesCount !== 1 ? 's' : ''} available.
                             </p>
                         )}
 
@@ -642,12 +640,12 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                             <div
                                 className='w-100 mt-3'
                                 role="note"
-                                aria-label={nls('gridUnavailableNotice')}
+                                aria-label="Grid controls availability notice"
                             >
                                 <Alert
                                     type='info'
                                     withIcon
-                                    text={nls('grid2dOnly')}
+                                    text='Grid controls are only available in 2D MapViews. Switch to 2D view to enable grid functionality.'
                                     closable={false}
                                     role="status"
                                     aria-live="polite"
@@ -658,13 +656,13 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                             <div
                                 className='mt-3'
                                 role="region"
-                                aria-label={nls('gridOverlayControls')}
+                                aria-label="Grid overlay controls"
                             >
                                 {/* Wrapper with tooltip for Grid CollapsableCheckbox */}
                                 <div
                                     title={gridEnabled
-                                        ? nls('disableGridTitle')
-                                        : nls('enableGridTitle')}
+                                        ? 'Click to disable the grid overlay. The grid helps align drawings to a regular pattern.'
+                                        : 'Click to enable the grid overlay. The grid provides visual guides and snapping points for precise drawing.'}
                                 >
                                     <CollapsableCheckbox
                                         className='w-100'
@@ -673,7 +671,7 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                         disableActionForUnchecked
                                         openForCheck
                                         closeForUncheck
-                                        label={nls(gridEnabled ? 'disableGrid' : 'enableGrid')}
+                                        label={gridEnabled ? 'Disable Grid' : 'Enable Grid'}
                                         aria-expanded={gridEnabled}
                                         aria-controls={ids.gridPanel}
                                     >
@@ -681,7 +679,7 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                             id={ids.gridPanel}
                                             className='ml-3 my-1'
                                             role="group"
-                                            aria-label={nls('gridConfigurationOptions')}
+                                            aria-label="Grid configuration options"
                                         >
                                             {/* Grid status for screen readers */}
                                             <div
@@ -690,15 +688,18 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                                 role="status"
                                             >
                                                 {gridEnabled
-                                                    ? nls('gridEnabledStatus', { theme: nls(`gridTheme${gridTheme.charAt(0).toUpperCase()}${gridTheme.slice(1)}`), spacing: gridSpacingMode === 'mapUnits' ? nls('gridSpacingUnitValue', { value: gridMapUnitValue, unit: gridMapUnit }) : nls('gridSpacingValue', { value: gridSpacing }), rotation: gridRotation })
-                                                    : nls('gridDisabledStatus')}
+                                                    ? `Grid is enabled. Theme: ${gridTheme}. Spacing: ${gridSpacingMode === 'mapUnits'
+                                                        ? `${gridMapUnitValue} ${gridMapUnit}`
+                                                        : `${gridSpacing} pixels`
+                                                    }. Rotation: ${gridRotation} degrees.`
+                                                    : 'Grid is disabled.'}
                                             </div>
 
                                             {gridEnabled && (
                                                 <div
                                                     className='d-flex flex-column'
                                                     role="form"
-                                                    aria-label={nls('gridSettingsForm')}
+                                                    aria-label="Grid settings form"
                                                 >
                                                     {/* Grid Theme Selection */}
                                                     <div className='mb-2'>
@@ -711,7 +712,7 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                                                 className='mb-1'
                                                                 style={{ fontSize: '12px' }}
                                                             >
-                                                                {nls('gridTheme')}
+                                                                Grid Theme:
                                                             </span>
                                                             <Select
                                                                 id={ids.gridThemeSelect}
@@ -721,22 +722,22 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                                                 onChange={(e) => {
                                                                     const newTheme = e.target.value as 'light' | 'dark' | 'custom';
                                                                     setGridTheme(newTheme);
-                                                                    announce(nls('gridThemeChanged', { theme: newTheme }), 'polite');
+                                                                    announce(`Grid theme changed to ${newTheme}`, 'polite');
                                                                 }}
                                                                 aria-labelledby={ids.gridThemeLabel}
                                                                 aria-describedby={ids.gridThemeDesc}
-                                                                title={nls('gridThemeTitle')}
+                                                                title="Select a color theme for the grid overlay. Light works best on dark backgrounds, dark on light backgrounds, or choose custom to pick your own color."
                                                             >
-                                                                <Option value='light'>{nls('gridThemeLight')}</Option>
-                                                                <Option value='dark'>{nls('gridThemeDark')}</Option>
-                                                                <Option value='custom'>{nls('gridThemeCustom')}</Option>
+                                                                <Option value='light'>Light</Option>
+                                                                <Option value='dark'>Dark</Option>
+                                                                <Option value='custom'>Custom</Option>
                                                             </Select>
                                                         </label>
                                                         <span
                                                             id={ids.gridThemeDesc}
                                                             style={srOnlyStyles}
                                                         >
-                                                            {nls('gridThemeDescription')}
+                                                            Choose light for dark backgrounds, dark for light backgrounds, or custom to select your own grid color.
                                                         </span>
                                                     </div>
 
@@ -752,14 +753,14 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                                                     className='mb-1'
                                                                     style={{ fontSize: '12px' }}
                                                                 >
-                                                                    {nls('gridColor')}
+                                                                    Grid Color:
                                                                 </span>
-                                                                <div title={nls('gridColorTitle')}>
+                                                                <div title="Select a custom color for the grid lines. Click to open the color picker dialog.">
                                                                     <ColorPicker
                                                                         color={gridColor}
                                                                         onChange={(color) => {
                                                                             setGridColor(color);
-                                                                            announce(nls('gridColorChanged'), 'polite');
+                                                                            announce(`Grid color changed`, 'polite');
                                                                         }}
                                                                         aria-labelledby={ids.gridColorLabel}
                                                                     />
@@ -774,7 +775,7 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                                             className='mb-1 d-block'
                                                             style={{ fontSize: '12px' }}
                                                         >
-                                                            {nls('gridOrigin')}
+                                                            Grid Origin:
                                                         </span>
                                                         <button
                                                             id={ids.gridPlacementButton}
@@ -785,14 +786,14 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                                                 setGridPlacementActive(newState);
                                                                 announce(
                                                                     newState
-                                                                        ? nls('gridPlacementActivated')
-                                                                        : nls('gridPlacementDeactivated'),
+                                                                        ? 'Place grid mode activated. Click on the map to set the grid origin.'
+                                                                        : 'Place grid mode deactivated.',
                                                                     'polite'
                                                                 );
                                                             }}
                                                             title={gridPlacementActive
-                                                                ? nls('gridPlacementButtonTitleActive')
-                                                                : nls('gridPlacementButtonTitleInactive')}
+                                                                ? 'Click to cancel placement. Currently waiting for you to click on the map to set the grid origin point.'
+                                                                : 'Click to set the grid origin. After clicking this button, click on the map where you want the grid center to be (e.g. a street corner for a site plan).'}
                                                             aria-pressed={gridPlacementActive}
                                                             aria-describedby={ids.gridPlacementDesc}
                                                             style={{
@@ -814,10 +815,10 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                                             >
                                                                 <path d='M8 0L7 1v6H1l-1 1 1 1h6v6l1 1 1-1V9h6l1-1-1-1H9V1L8 0z' />
                                                             </svg>
-                                                            {nls(gridPlacementActive ? 'gridPlacementActive' : 'gridPlacementInactive')}
+                                                            {gridPlacementActive ? 'Click Map to Set Origin...' : 'Set Grid Origin'}
                                                         </button>
                                                         <span id={ids.gridPlacementDesc} style={srOnlyStyles}>
-                                                            {nls('gridPlacementDescription')}
+                                                            Sets the grid center point by clicking on the map. Useful for aligning the grid to a specific location like a street corner or building corner.
                                                         </span>
                                                     </div>
 
@@ -832,7 +833,7 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                                                 className='mb-1'
                                                                 style={{ fontSize: '12px' }}
                                                             >
-                                                                {nls('spacingMode')}
+                                                                Spacing Mode:
                                                             </span>
                                                             <Select
                                                                 id={ids.gridSpacingModeSelect}
@@ -842,21 +843,21 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                                                 onChange={(e) => {
                                                                     const newMode = e.target.value as 'pixels' | 'mapUnits';
                                                                     setGridSpacingMode(newMode);
-                                                                    announce(nls('gridSpacingModeChanged', { mode: newMode === 'pixels' ? nls('pixelsScreen') : nls('mapUnitsLinear') }), 'polite');
+                                                                    announce(`Grid spacing mode changed to ${newMode === 'pixels' ? 'pixels' : 'map units'}`, 'polite');
                                                                 }}
                                                                 aria-labelledby={ids.gridSpacingModeLabel}
                                                                 aria-describedby={ids.gridSpacingModeDesc}
-                                                                title={nls('spacingModeTitle')}
+                                                                title="Choose whether grid spacing is defined in screen pixels or real-world map units (feet, meters, yards)."
                                                             >
-                                                                <Option value='pixels'>{nls('pixelsScreen')}</Option>
-                                                                <Option value='mapUnits'>{nls('mapUnitsLinear')}</Option>
+                                                                <Option value='pixels'>Pixels (screen)</Option>
+                                                                <Option value='mapUnits'>Map Units (linear)</Option>
                                                             </Select>
                                                         </label>
                                                         <span
                                                             id={ids.gridSpacingModeDesc}
                                                             style={srOnlyStyles}
                                                         >
-                                                            {nls('spacingModeDescription')}
+                                                            Pixels mode sets grid line distance in screen pixels. Map Units mode sets grid line distance in real-world measurements that scale with zoom.
                                                         </span>
                                                     </div>
 
@@ -871,7 +872,7 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                                                     className='mb-1'
                                                                     style={{ fontSize: '12px' }}
                                                                 >
-                                                                    {nls('gridSpacingPixels')}
+                                                                    Grid Spacing (pixels):
                                                                 </span>
                                                                 <div
                                                                     className='d-flex align-items-center'
@@ -880,7 +881,7 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                                                 >
                                                                     <div
                                                                         className='flex-grow-1 mr-2'
-                                                                        title={nls('gridSpacingSliderTitle', { value: gridSpacing })}
+                                                                        title={`Grid spacing slider. Current value: ${gridSpacing} pixels. Drag to adjust the distance between grid lines from 10 to 200 pixels.`}
                                                                     >
                                                                         <Slider
                                                                             id={ids.gridSpacingSlider}
@@ -888,16 +889,16 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                                                             onChange={(e) => {
                                                                                 const newValue = Number(e.target.value);
                                                                                 setGridSpacing(newValue);
-                                                                                announce(nls('gridSpacingValue', { value: newValue }), 'polite');
+                                                                                announce(`Grid spacing: ${newValue} pixels`, 'polite');
                                                                             }}
                                                                             min={10}
                                                                             max={200}
                                                                             step={5}
-                                                                            aria-label={nls('gridSpacingValue', { value: gridSpacing })}
+                                                                            aria-label={`Grid spacing: ${gridSpacing} pixels`}
                                                                             aria-valuemin={10}
                                                                             aria-valuemax={200}
                                                                             aria-valuenow={gridSpacing}
-                                                                            aria-valuetext={nls('gridSpacingValue', { value: gridSpacing })}
+                                                                            aria-valuetext={`${gridSpacing} pixels`}
                                                                             aria-describedby={ids.gridSpacingDesc}
                                                                         />
                                                                     </div>
@@ -907,20 +908,20 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                                                         value={gridSpacing}
                                                                         onChange={(value) => {
                                                                             setGridSpacing(value);
-                                                                            announce(nls('gridSpacingSet', { value }), 'polite');
+                                                                            announce(`Grid spacing set to ${value} pixels`, 'polite');
                                                                         }}
                                                                         min={10}
                                                                         max={200}
                                                                         step={5}
                                                                         style={{ width: '70px' }}
-                                                                        aria-label={nls('gridSpacingPixelsAria')}
+                                                                        aria-label="Grid spacing in pixels"
                                                                         aria-describedby={ids.gridSpacingDesc}
-                                                                        title={nls('gridSpacingPixelsTitle')}
+                                                                        title="Enter grid spacing value in pixels (10-200). The spacing determines the distance between grid lines."
                                                                     />
                                                                 </div>
                                                             </label>
                                                             <span id={ids.gridSpacingDesc} style={srOnlyStyles}>
-                                                                {nls('gridSpacingPixelsDescription')}
+                                                                Adjust the distance between grid lines. Smaller values create a finer grid, larger values create a coarser grid. Range is 10 to 200 pixels.
                                                             </span>
                                                         </div>
                                                     )}
@@ -938,7 +939,7 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                                                     className='mb-1'
                                                                     style={{ fontSize: '12px' }}
                                                                 >
-                                                                    {nls('gridUnit')}
+                                                                    Unit:
                                                                 </span>
                                                                 <Select
                                                                     id={ids.gridMapUnitSelect}
@@ -948,14 +949,14 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                                                     onChange={(e) => {
                                                                         const newUnit = e.target.value as 'feet' | 'meters' | 'yards';
                                                                         setGridMapUnit(newUnit);
-                                                                        announce(nls('gridUnitChanged', { unit: newUnit }), 'polite');
+                                                                        announce(`Grid unit changed to ${newUnit}`, 'polite');
                                                                     }}
                                                                     aria-labelledby={ids.gridMapUnitLabel}
-                                                                    title={nls('gridUnitTitle')}
+                                                                    title="Select the map unit for grid spacing."
                                                                 >
-                                                                    <Option value='feet'>{nls('feet')}</Option>
-                                                                    <Option value='meters'>{nls('meters')}</Option>
-                                                                    <Option value='yards'>{nls('yards')}</Option>
+                                                                    <Option value='feet'>Feet</Option>
+                                                                    <Option value='meters'>Meters</Option>
+                                                                    <Option value='yards'>Yards</Option>
                                                                 </Select>
                                                             </label>
 
@@ -968,7 +969,7 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                                                     className='mb-1'
                                                                     style={{ fontSize: '12px' }}
                                                                 >
-                                                                    {nls('gridSpacingMapUnit', { unit: nls(gridMapUnit) })}
+                                                                    Grid Spacing ({gridMapUnit}):
                                                                 </span>
                                                                 <NumericInput
                                                                     id={ids.gridMapUnitValueInput}
@@ -977,7 +978,7 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                                                     onChange={(value) => {
                                                                         if (value != null && value > 0) {
                                                                             setGridMapUnitValue(value);
-                                                                            announce(nls('gridSpacingSetToMapUnit', { value, unit: gridMapUnit }), 'polite');
+                                                                            announce(`Grid spacing set to ${value} ${gridMapUnit}`, 'polite');
                                                                         }
                                                                     }}
                                                                     min={1}
@@ -985,15 +986,15 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                                                     step={gridMapUnit === 'meters' ? 10 : gridMapUnit === 'feet' ? 25 : 10}
                                                                     style={{ width: '100%' }}
                                                                     showHandlers={true}
-                                                                    aria-label={nls('gridSpacingMapUnitAria', { unit: nls(gridMapUnit) })}
+                                                                    aria-label={`Grid spacing in ${gridMapUnit}`}
                                                                     aria-describedby={ids.gridMapUnitValueDesc}
-                                                                    title={nls('gridSpacingMapUnitTitle', { unit: nls(gridMapUnit) })}
+                                                                    title={`Enter grid spacing in ${gridMapUnit}. The grid lines will be spaced this distance apart in real-world measurements.`}
                                                                 />
                                                             </label>
 
                                                             {/* Spacing info */}
                                                             <span id={ids.gridMapUnitValueDesc} style={srOnlyStyles}>
-                                                                {nls('gridSpacingMapUnitDescription')}
+                                                                Set the real-world distance between grid lines. The grid will maintain this distance at all zoom levels.
                                                             </span>
                                                         </div>
                                                     )}
@@ -1008,7 +1009,7 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                                                 className='mb-1'
                                                                 style={{ fontSize: '12px' }}
                                                             >
-                                                                {nls('gridRotation')}
+                                                                Grid Rotation (degrees):
                                                             </span>
                                                             <div
                                                                 className='d-flex align-items-center'
@@ -1017,7 +1018,7 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                                             >
                                                                 <div
                                                                     className='flex-grow-1 mr-2'
-                                                                    title={nls('gridRotationSliderTitle', { value: gridRotation })}
+                                                                    title={`Grid rotation slider. Current value: ${gridRotation} degrees. Drag to rotate the grid from 0 to 360 degrees.`}
                                                                 >
                                                                     <Slider
                                                                         id={ids.gridRotationSlider}
@@ -1028,16 +1029,16 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                                                             value = value % 360;
                                                                             if (value < 0) value += 360;
                                                                             setGridRotation(value);
-                                                                            announce(nls('gridRotationValue', { value }), 'polite');
+                                                                            announce(`Grid rotation: ${value} degrees`, 'polite');
                                                                         }}
                                                                         min={0}
                                                                         max={360}
                                                                         step={5}
-                                                                        aria-label={nls('gridRotationValue', { value: gridRotation })}
+                                                                        aria-label={`Grid rotation: ${gridRotation} degrees`}
                                                                         aria-valuemin={0}
                                                                         aria-valuemax={360}
                                                                         aria-valuenow={gridRotation}
-                                                                        aria-valuetext={nls('gridRotationValueDegrees', { value: gridRotation })}
+                                                                        aria-valuetext={`${gridRotation} degrees`}
                                                                         aria-describedby={ids.gridRotationDesc}
                                                                     />
                                                                 </div>
@@ -1050,20 +1051,20 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                                                         let normalized = value % 360;
                                                                         if (normalized < 0) normalized += 360;
                                                                         setGridRotation(normalized);
-                                                                        announce(nls('gridRotationSet', { value: normalized }), 'polite');
+                                                                        announce(`Grid rotation set to ${normalized} degrees`, 'polite');
                                                                     }}
                                                                     min={0}
                                                                     max={360}
                                                                     step={5}
                                                                     style={{ width: '70px' }}
-                                                                    aria-label={nls('gridRotationAria')}
+                                                                    aria-label="Grid rotation in degrees"
                                                                     aria-describedby={ids.gridRotationDesc}
-                                                                    title={nls('gridRotationTitle')}
+                                                                    title="Enter grid rotation value in degrees (0-360). The grid will rotate around its center point."
                                                                 />
                                                             </div>
                                                         </label>
                                                         <span id={ids.gridRotationDesc} style={srOnlyStyles}>
-                                                            {nls('gridRotationDescription')}
+                                                            Adjust the rotation angle of the grid. 0 degrees is horizontal, 90 degrees is vertical. Range is 0 to 360 degrees.
                                                         </span>
                                                     </div>
 
@@ -1077,7 +1078,7 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                                                 className='mb-1'
                                                                 style={{ fontSize: '12px' }}
                                                             >
-                                                                {nls('majorLineInterval')}
+                                                                Major Line Interval:
                                                             </span>
                                                             <div
                                                                 className='d-flex align-items-center'
@@ -1086,7 +1087,7 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                                             >
                                                                 <div
                                                                     className='flex-grow-1 mr-2'
-                                                                    title={nls('gridMajorLineSliderTitle', { value: gridMajorLineInterval })}
+                                                                    title={`Major line interval slider. Current value: ${gridMajorLineInterval}. Every ${gridMajorLineInterval}${gridMajorLineInterval === 1 ? 'st' : gridMajorLineInterval === 2 ? 'nd' : gridMajorLineInterval === 3 ? 'rd' : 'th'} line will be emphasized with a thicker line.`}
                                                                 >
                                                                     <Slider
                                                                         id={ids.gridMajorLineSlider}
@@ -1094,16 +1095,16 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                                                         onChange={(e) => {
                                                                             const newValue = Number(e.target.value);
                                                                             setGridMajorLineInterval(newValue);
-                                                                            announce(nls('majorLineIntervalValue', { value: newValue }), 'polite');
+                                                                            announce(`Major line interval: every ${newValue} lines`, 'polite');
                                                                         }}
                                                                         min={1}
                                                                         max={10}
                                                                         step={1}
-                                                                        aria-label={nls('majorLineIntervalValue', { value: gridMajorLineInterval })}
+                                                                        aria-label={`Major line interval: every ${gridMajorLineInterval} lines`}
                                                                         aria-valuemin={1}
                                                                         aria-valuemax={10}
                                                                         aria-valuenow={gridMajorLineInterval}
-                                                                        aria-valuetext={nls('majorLineIntervalEvery', { value: gridMajorLineInterval })}
+                                                                        aria-valuetext={`Every ${gridMajorLineInterval} lines`}
                                                                         aria-describedby={ids.gridMajorLineDesc}
                                                                     />
                                                                 </div>
@@ -1113,20 +1114,20 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                                                     value={gridMajorLineInterval}
                                                                     onChange={(value) => {
                                                                         setGridMajorLineInterval(value);
-                                                                        announce(nls('majorLineIntervalSet', { value }), 'polite');
+                                                                        announce(`Major line interval set to every ${value} lines`, 'polite');
                                                                     }}
                                                                     min={1}
                                                                     max={10}
                                                                     step={1}
                                                                     style={{ width: '70px' }}
-                                                                    aria-label={nls('majorLineIntervalAria')}
+                                                                    aria-label="Major line interval"
                                                                     aria-describedby={ids.gridMajorLineDesc}
-                                                                    title={nls('majorLineIntervalTitle')}
+                                                                    title="Enter how often major (thicker) lines appear. For example, 5 means every 5th line is a major line."
                                                                 />
                                                             </div>
                                                         </label>
                                                         <span id={ids.gridMajorLineDesc} style={srOnlyStyles}>
-                                                            {nls('majorLineIntervalDescription')}
+                                                            Set how often major grid lines appear. Major lines are thicker and more visible. A value of 5 means every 5th line is emphasized. Range is 1 to 10.
                                                         </span>
                                                     </div>
 
@@ -1135,7 +1136,7 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                                         className='d-flex flex-column mt-2'
                                                         style={{ border: 'none', padding: 0, margin: 0 }}
                                                     >
-                                                        <legend style={srOnlyStyles}>{nls('gridBehaviorOptions')}</legend>
+                                                        <legend style={srOnlyStyles}>Grid behavior options</legend>
 
                                                         {/* Dynamic Scaling Toggle — hidden in map-units mode (forced off) */}
                                                         {gridSpacingMode !== 'mapUnits' && (
@@ -1143,7 +1144,9 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                                                 <label
                                                                     className='d-flex align-items-center'
                                                                     style={{ cursor: 'pointer' }}
-                                                                    title={nls(gridDynamicScale ? 'dynamicScalingEnabledTitle' : 'dynamicScalingDisabledTitle')}
+                                                                    title={gridDynamicScale
+                                                                        ? 'Dynamic scaling is ON. The grid will automatically adjust its density as you zoom in and out to maintain visual clarity.'
+                                                                        : 'Dynamic scaling is OFF. The grid will maintain a fixed spacing regardless of zoom level.'}
                                                                 >
                                                                     <Switch
                                                                         id={ids.gridDynamicScaleSwitch}
@@ -1151,7 +1154,7 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                                                         onChange={() => {
                                                                             const newValue = !gridDynamicScale;
                                                                             setGridDynamicScale(newValue);
-                                                                            announce(nls('dynamicScalingStatus', { status: newValue ? nls('enabled') : nls('disabled') }), 'polite');
+                                                                            announce(`Dynamic scaling ${newValue ? 'enabled' : 'disabled'}`, 'polite');
                                                                         }}
                                                                         className='mr-2'
                                                                         size='sm'
@@ -1159,10 +1162,10 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                                                         aria-checked={gridDynamicScale}
                                                                         aria-describedby={ids.gridDynamicScaleDesc}
                                                                     />
-                                                                    <span style={{ fontSize: '12px' }}>{nls('dynamicScaling')}</span>
+                                                                    <span style={{ fontSize: '12px' }}>Dynamic Scaling</span>
                                                                 </label>
                                                                 <span id={ids.gridDynamicScaleDesc} style={srOnlyStyles}>
-                                                                    {nls('dynamicScalingDescription')}
+                                                                    When enabled, the grid automatically adjusts its display based on the current zoom level to maintain optimal visibility.
                                                                 </span>
                                                             </div>
                                                         )}
@@ -1172,7 +1175,9 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                                             <label
                                                                 className='d-flex align-items-center'
                                                                 style={{ cursor: 'pointer' }}
-                                                                title={nls(gridSnapEnabled ? 'snapToGridEnabledTitle' : 'snapToGridDisabledTitle')}
+                                                                title={gridSnapEnabled
+                                                                    ? 'Snap to grid is ON. Your cursor will snap to grid intersections while drawing for precise alignment.'
+                                                                    : 'Snap to grid is OFF. Your cursor will not snap to grid points while drawing.'}
                                                             >
                                                                 <Switch
                                                                     id={ids.gridSnapSwitch}
@@ -1180,7 +1185,7 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                                                     onChange={() => {
                                                                         const newValue = !gridSnapEnabled;
                                                                         setGridSnapEnabled(newValue);
-                                                                        announce(nls('snapToGridStatus', { status: newValue ? nls('enabled') : nls('disabled') }), 'polite');
+                                                                        announce(`Snap to grid ${newValue ? 'enabled' : 'disabled'}`, 'polite');
                                                                     }}
                                                                     className='mr-2'
                                                                     size='sm'
@@ -1188,10 +1193,10 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                                                     aria-checked={gridSnapEnabled}
                                                                     aria-describedby={ids.gridSnapDesc}
                                                                 />
-                                                                <span style={{ fontSize: '12px' }}>{nls('snapToGrid')}</span>
+                                                                <span style={{ fontSize: '12px' }}>Snap to Grid</span>
                                                             </label>
                                                             <span id={ids.gridSnapDesc} style={srOnlyStyles}>
-                                                                {nls('snapToGridDescription')}
+                                                                When enabled, your drawing cursor will automatically snap to grid intersection points for precise alignment.
                                                             </span>
                                                         </div>
 
@@ -1200,7 +1205,9 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                                             <label
                                                                 className='d-flex align-items-center'
                                                                 style={{ cursor: 'pointer' }}
-                                                                title={nls(gridRotateWithMap ? 'rotateWithMapEnabledTitle' : 'rotateWithMapDisabledTitle')}
+                                                                title={gridRotateWithMap
+                                                                    ? 'Rotate with map is ON. The grid will rotate along with the map when you rotate the map view.'
+                                                                    : 'Rotate with map is OFF. The grid will maintain its orientation regardless of map rotation.'}
                                                             >
                                                                 <Switch
                                                                     id={ids.gridRotateMapSwitch}
@@ -1208,7 +1215,7 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                                                     onChange={() => {
                                                                         const newValue = !gridRotateWithMap;
                                                                         setGridRotateWithMap(newValue);
-                                                                        announce(nls('rotateWithMapStatus', { status: newValue ? nls('enabled') : nls('disabled') }), 'polite');
+                                                                        announce(`Rotate with map ${newValue ? 'enabled' : 'disabled'}`, 'polite');
                                                                     }}
                                                                     className='mr-2'
                                                                     size='sm'
@@ -1216,10 +1223,10 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
                                                                     aria-checked={gridRotateWithMap}
                                                                     aria-describedby={ids.gridRotateMapDesc}
                                                                 />
-                                                                <span style={{ fontSize: '12px' }}>{nls('rotateWithMap')}</span>
+                                                                <span style={{ fontSize: '12px' }}>Rotate with Map</span>
                                                             </label>
                                                             <span id={ids.gridRotateMapDesc} style={srOnlyStyles}>
-                                                                {nls('rotateWithMapDescription')}
+                                                                When enabled, the grid will rotate together with the map when the map view is rotated.
                                                             </span>
                                                         </div>
                                                     </fieldset>

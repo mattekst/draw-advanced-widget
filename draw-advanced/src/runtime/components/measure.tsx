@@ -111,7 +111,7 @@ interface MeasuredGraphic {
 }
 
 interface MeasureProps {
-	nls: (id: string) => string;
+	nls: (id: string, values?: Record<string, any>) => string;
 	config: any;
 	drawLayer: any;
 	currentTextSymbol: any;
@@ -206,7 +206,7 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 			typeof symbol.text === 'string';
 	}
 
-	//Built-in units
+	//Built-in units TODO: byt till original med hårdkodad fallback
 	const defaultAreaUnits = [
 		{ unit: 'square-kilometers', label: props.nls('squareKilometers') || 'Square Kilometers', abbreviation: 'km²', conversion: 0.000001 },
 		{ unit: 'square-miles', label: props.nls('squareMiles') || 'Square Miles', abbreviation: 'mi²', conversion: 3.86102e-7 },
@@ -2105,7 +2105,7 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 
 					let polylinePattern = lengthOn ? props.config.measurePolylineLabel || '{{length}} {{lengthUnit}}' : '';
 					if (shouldCreateSegments(geometry) && polylinePattern) {
-						polylinePattern = 'Total: ' + polylinePattern
+						polylinePattern = props.nls('measurementTotal', { value: polylinePattern })
 					}
 					if (parentGraphic) {
 						polylinePattern = props.config.measurePolylineLabel || '{{length}} {{lengthUnit}}';
@@ -2155,11 +2155,11 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 
 					let defaultPattern = ''
 					if (areaOn && perimeterOn) {
-						defaultPattern = 'Area: {{area}} {{areaUnit}}\nPerimeter: {{length}} {{lengthUnit}}'
+						defaultPattern = `${props.nls('measurementAreaLine', { value: '{{area}}', unit: '{{areaUnit}}' })}\n${props.nls('measurementPerimeterLine', { value: '{{length}}', unit: '{{lengthUnit}}' })}`
 					} else if (areaOn) {
-						defaultPattern = 'Area: {{area}} {{areaUnit}}'
+						defaultPattern = props.nls('measurementAreaLine', { value: '{{area}}', unit: '{{areaUnit}}' })
 					} else if (perimeterOn) {
-						defaultPattern = 'Perimeter: {{length}} {{lengthUnit}}'
+						defaultPattern = props.nls('measurementPerimeterLine', { value: '{{length}}', unit: '{{lengthUnit}}' })
 					}
 					const polygonPattern = props.config.measurePolygonLabel || defaultPattern;
 
@@ -2173,7 +2173,7 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 						const radius = analyticRadius !== null
 							? analyticRadius
 							: Math.abs(perimeter / (2 * Math.PI)); // Ensure positive radius
-						result += `\nRadius: ${_round(radius, otherRound).toLocaleString()} ${perimeterUnitInfo.abbreviation}`;
+						result += `\n${props.nls('measurementRadiusLine', { value: _round(radius, otherRound).toLocaleString(), unit: perimeterUnitInfo.abbreviation })}`;
 					}
 
 					return result;
@@ -2185,7 +2185,7 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 			}
 		} catch (error) {
 			console.error('Error calculating measurement:', error);
-			return 'Error calculating measurement';
+			return props.nls('measurementCalculationError');
 		}
 	};
 
@@ -2264,7 +2264,7 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 						visible: measureEnabledRef.current || graphic.attributes?.hadMeasurements || !!graphic.measure,
 						attributes: {
 							name: segText,
-							description: 'Segment Label',
+							description: props.nls('segmentLabelDescription'),
 							isMeasurementLabel: true,
 							hideFromList: true,
 							drawMode: 'text',
@@ -3494,9 +3494,9 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 				let xyCoords = ''
 				let srWkid = ''
 				if (xy) {
-					xyCoords = `X: ${labelPoint.x.toFixed(pointRound)} \nY: ${labelPoint.y.toFixed(pointRound)}`
+					xyCoords = `${props.nls('measurementX', { value: labelPoint.x.toFixed(pointRound) })}\n${props.nls('measurementY', { value: labelPoint.y.toFixed(pointRound) })}`
 					if (wkid) {
-						srWkid = '\nWKID: ' + labelPoint.spatialReference?.latestWkid || labelPoint.spatialReference?.wkid || 'unknown';
+						srWkid = `\n${props.nls('measurementWkid', { value: labelPoint.spatialReference?.latestWkid || labelPoint.spatialReference?.wkid || props.nls('measurementUnknown') })}`;
 					}
 				}
 				let wgsCoords = '';
@@ -3509,9 +3509,9 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 					const [projected] = projectOperator.executeMany([labelPoint], SpatialReferenceCompat.WGS84) as any[];
 
 					if (projected && latLong) {
-						wgsCoords = `\nLat: ${projected.y.toFixed(pointRound)}\nLon: ${projected.x.toFixed(pointRound)}`;
+						wgsCoords = `\n${props.nls('measurementLatitude', { value: projected.y.toFixed(pointRound) })}\n${props.nls('measurementLongitude', { value: projected.x.toFixed(pointRound) })}`;
 						if (wkid) {
-							wgsCoords = wgsCoords + '\nWKID: 4326'
+							wgsCoords = `${wgsCoords}\n${props.nls('measurementWkid', { value: 4326 })}`
 						}
 					}
 				} catch (err) {
@@ -3619,7 +3619,7 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 					visible: measureEnabledRef.current || graphic.attributes?.hadMeasurements || !!graphic.measure, // 🆕 FIX: Show if enabled OR graphic has measurements
 					attributes: {
 						name: text,
-						description: isPoint ? 'Coordinate Label' : 'Measurement Label',
+						description: isPoint ? props.nls('measurementCoordinateLabel') : props.nls('measurementMainLabel'),
 						isMeasurementLabel: true,
 						hideFromList: true,
 						drawMode: 'text',
@@ -3848,7 +3848,7 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 							visible: true,
 							attributes: {
 								name: segText,
-								description: 'Segment Label',
+								description: props.nls('segmentLabelDescription'),
 								isMeasurementLabel: true,
 								hideFromList: true,
 								drawMode: 'text',
@@ -4094,10 +4094,10 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 					let xyCoords = '';
 					let srWkid = '';
 					if (xy) {
-						xyCoords = `X: ${labelPoint.x.toFixed(pointRound)} \nY: ${labelPoint.y.toFixed(pointRound)}`;
+						xyCoords = `${props.nls('measurementX', { value: labelPoint.x.toFixed(pointRound) })}\n${props.nls('measurementY', { value: labelPoint.y.toFixed(pointRound) })}`;
 						if (wkid) {
-							const wk = labelPoint.spatialReference?.latestWkid || labelPoint.spatialReference?.wkid || 'unknown';
-							srWkid = `\nWKID: ${wk}`;
+							const wk = labelPoint.spatialReference?.latestWkid || labelPoint.spatialReference?.wkid || props.nls('measurementUnknown');
+							srWkid = `\n${props.nls('measurementWkid', { value: wk })}`;
 						}
 					}
 					let wgsCoords = '';
@@ -4105,8 +4105,8 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 						if (!projectOperator.isLoaded()) await projectOperator.load();
 						const [projected] = projectOperator.executeMany([labelPoint], SpatialReferenceCompat.WGS84) as any[];
 						if (projected && latLong) {
-							wgsCoords = `\nLat: ${projected.y.toFixed(pointRound)}\nLon: ${projected.x.toFixed(pointRound)}`;
-							if (wkid) wgsCoords = `${wgsCoords}\nWKID: 4326`;
+							wgsCoords = `\n${props.nls('measurementLatitude', { value: projected.y.toFixed(pointRound) })}\n${props.nls('measurementLongitude', { value: projected.x.toFixed(pointRound) })}`;
+							if (wkid) wgsCoords = `${wgsCoords}\n${props.nls('measurementWkid', { value: 4326 })}`;
 						}
 					} catch (projErr) {
 						console.warn('Projection to WGS84 failed:', projErr);
@@ -4247,7 +4247,7 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 							visible: measureEnabledRef.current || graphic.attributes?.hadMeasurements || !!graphic.measure, // 🆕 FIX: Show if enabled OR graphic has measurements
 							attributes: {
 								name: text,
-								description: isPoint ? 'Coordinate Label' : 'Measurement Label',
+								description: isPoint ? props.nls('measurementCoordinateLabel') : props.nls('measurementMainLabel'),
 								isMeasurementLabel: true,
 								hideFromList: true,
 								drawMode: 'text',
@@ -4375,7 +4375,7 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 								visible: measureEnabledRef.current || graphic.attributes?.hadMeasurements || !!graphic.measure, // 🆕 FIX: Show if enabled OR graphic has measurements
 								attributes: {
 									name: segText,
-									description: 'Segment Label',
+										description: props.nls('segmentLabelDescription'),
 									isMeasurementLabel: true,
 									hideFromList: true,
 									drawMode: 'text',
@@ -4785,9 +4785,9 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 		}
 
 		return (
-			<span title='Toggle measurement label editing mode. When enabled, click on measurement labels in the map to select and customize them.'>
+			<span title={props.nls('editMeasurementLabelsTitle')}>
 				<CollapsableCheckbox
-					label='Edit Measurement Labels'
+					label={props.nls('editMeasurementLabels')}
 					onCheckedChange={(e) => {
 						// 🔧 Guard against spurious firing during mount/remount
 						if (!isInitialMount.current) {
@@ -4800,7 +4800,7 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 					openForCheck
 					closeForUncheck
 					className='w-100'
-					aria-label='Edit Measurement Labels - Toggle to enable or disable measurement label editing mode'
+					aria-label={props.nls('editMeasurementLabelsAria')}
 					aria-expanded={editableMeasurements}
 					aria-controls='measurement-editing-panel'
 				>
@@ -4808,7 +4808,7 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 						className='d-flex flex-column'
 						id='measurement-editing-panel'
 						role='region'
-						aria-label='Measurement label editing options'
+						aria-label={props.nls('measurementEditingOptions')}
 					>
 						{/* Screen reader announcements for status changes */}
 						<div
@@ -4818,51 +4818,51 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 							className='sr-only'
 							style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', overflow: 'hidden' }}
 						>
-							{!selectedMeasurementLabel && editableMeasurements && 'Measurement editing mode active. Click a measurement label on the map to select it.'}
-							{selectedMeasurementLabel && !isDraggingLabel && 'Measurement label selected. Use the controls below to customize the label appearance.'}
-							{isDraggingLabel && 'Drag mode active. Move your mouse and click to place the label at a new position.'}
+							{!selectedMeasurementLabel && editableMeasurements && props.nls('measurementEditingActive')}
+							{selectedMeasurementLabel && !isDraggingLabel && props.nls('measurementLabelSelectedInstructions')}
+							{isDraggingLabel && props.nls('measurementLabelDraggingInstructions')}
 						</div>
 						<div className='ml-3 my-1'>
 							<ul
 								className='text-dark m-0 pl-3 small'
 								role='list'
-								aria-label='Measurement editing instructions and status'
+								aria-label={props.nls('measurementEditingInstructions')}
 							>
 								{!selectedMeasurementLabel && (
-									<li role='listitem' aria-label='Instruction: Click a measurement label to select it and begin editing'>
-										Click a measurement label to select it and begin editing
+									<li role='listitem' aria-label={props.nls('selectMeasurementLabelInstructions')}>
+										{props.nls('selectMeasurementLabelInstructions')}
 									</li>
 								)}
 								{editableMeasurements && selectedMeasurementLabel && !isDraggingLabel && (
 									<li
 										className='text-success'
 										role='listitem'
-										aria-label='Status: Label is currently selected for editing'
+										aria-label={props.nls('labelSelected')}
 									>
-										<strong>Label selected</strong>
+										<strong>{props.nls('labelSelected')}</strong>
 									</li>
 								)}
 								{isDraggingLabel && (
 									<li
 										className='text-info'
 										role='listitem'
-										aria-label='Status: Drag mode is active. Move mouse and click to place the label.'
+										aria-label={props.nls('draggingActive')}
 									>
-										<strong>Dragging active - move mouse and click to place</strong>
+										<strong>{props.nls('draggingActive')}</strong>
 									</li>
 								)}
 							</ul>
 						</div>
 					</div>
 					{selectedMeasurementLabel &&
-						<div className='ml-3 my-1' role='form' aria-label='Measurement label styling controls'>
+						<div className='ml-3 my-1' role='form' aria-label={props.nls('measurementLabelStylingControls')}>
 							{/* Font, Halo, and Text Formatting Controls - Three Column Layout */}
 							<div className='d-flex mb-1' style={{ gap: '12px' }}>
 								{/* Left Column - Font Properties */}
 								<fieldset style={{ flex: '1', border: 'none', padding: 0, margin: 0 }}>
 									<legend className='mb-2' style={{ fontSize: '1rem', fontWeight: 600 }}>
-										<h6 className='mb-2' aria-hidden='true'>Font</h6>
-										<span className='sr-only' style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', overflow: 'hidden' }}>Font Properties</span>
+										<h6 className='mb-2' aria-hidden='true'>{props.nls('font')}</h6>
+										<span className='sr-only' style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', overflow: 'hidden' }}>{props.nls('measurementFontProperties')}</span>
 									</legend>
 
 									{/* Font Color */}
@@ -4872,7 +4872,7 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 											style={{ minWidth: '70px', fontSize: '12px' }}
 											id='font-color-label'
 										>
-											Color:
+											{props.nls('fontColor')}:
 										</Label>
 										<ColorPicker
 											color={measurementFontColor}
@@ -4880,8 +4880,8 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 											width={24}
 											height={24}
 											aria-labelledby='font-color-label'
-											aria-label='Font color picker - Select the text color for the measurement label'
-											title='Select font color for the measurement label text'
+											aria-label={props.nls('measurementFontColorPickerAria')}
+											title={props.nls('measurementFontColorPickerTitle')}
 										/>
 									</div>
 
@@ -4892,7 +4892,7 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 											style={{ minWidth: '70px', fontSize: '12px' }}
 											id='font-size-label'
 										>
-											Size:
+											{props.nls('measurementSize')}:
 										</Label>
 										<NumericInput
 											size='sm'
@@ -4903,11 +4903,11 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 											step={1}
 											style={{ width: '60px' }}
 											aria-labelledby='font-size-label'
-											aria-label='Font size in points, minimum 8, maximum 48'
+											aria-label={props.nls('measurementFontSizeAria')}
 											aria-valuemin={8}
 											aria-valuemax={48}
 											aria-valuenow={measurementFontSize}
-											title='Font size in points (8-48). Use arrow keys or type a value.'
+											title={props.nls('measurementFontSizeTitle')}
 										/>
 									</div>
 
@@ -4918,7 +4918,7 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 											style={{ minWidth: '70px', fontSize: '12px' }}
 											id='font-rotation-label'
 										>
-											Rotation:
+											{props.nls('measurementRotation')}:
 										</Label>
 										<NumericInput
 											size='sm'
@@ -4929,11 +4929,11 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 											step={5}
 											style={{ width: '60px' }}
 											aria-labelledby='font-rotation-label'
-											aria-label='Font rotation in degrees, minimum negative 180, maximum 180'
+											aria-label={props.nls('measurementFontRotationAria')}
 											aria-valuemin={-180}
 											aria-valuemax={180}
 											aria-valuenow={measurementFontRotation}
-											title='Rotate label text in degrees (-180 to 180). Positive values rotate clockwise.'
+											title={props.nls('measurementFontRotationTitle')}
 										/>
 									</div>
 								</fieldset>
@@ -4941,8 +4941,8 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 								{/* Middle Column - Halo Properties */}
 								<fieldset style={{ flex: '1', border: 'none', padding: 0, margin: 0 }}>
 									<legend className='mb-2' style={{ fontSize: '1rem', fontWeight: 600 }}>
-										<h6 className='mb-2' aria-hidden='true'>Halo</h6>
-										<span className='sr-only' style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', overflow: 'hidden' }}>Halo Properties - Text outline effect</span>
+										<h6 className='mb-2' aria-hidden='true'>{props.nls('fontHalo')}</h6>
+										<span className='sr-only' style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', overflow: 'hidden' }}>{props.nls('measurementHaloProperties')}</span>
 									</legend>
 
 									{/* Enable Halo */}
@@ -4952,17 +4952,17 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 											style={{ minWidth: '70px', fontSize: '12px' }}
 											id='halo-enable-label'
 										>
-											Enable:
+											{props.nls('measurementEnable')}:
 										</Label>
 										<Switch
 											size='sm'
 											checked={measurementHaloEnabled}
 											onChange={(e) => updateMeasurementHalo(e.target.checked)}
 											aria-labelledby='halo-enable-label'
-											aria-label={`Halo effect is ${measurementHaloEnabled ? 'enabled' : 'disabled'}. Toggle to ${measurementHaloEnabled ? 'disable' : 'enable'} the text outline effect.`}
+											aria-label={props.nls('measurementHaloToggleAria', { state: props.nls(measurementHaloEnabled ? 'enabled' : 'disabled'), action: props.nls(measurementHaloEnabled ? 'actionDisable' : 'actionEnable') })}
 											aria-checked={measurementHaloEnabled}
 											role='switch'
-											title='Enable or disable the halo (outline) effect around the measurement label text for better visibility'
+											title={props.nls('measurementHaloTitle')}
 										/>
 									</div>
 
@@ -4977,7 +4977,7 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 											}}
 											id='halo-color-label'
 										>
-											Color:
+											{props.nls('fontColor')}:
 										</Label>
 										<ColorPicker
 											color={measurementHaloColor}
@@ -4986,9 +4986,9 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 											height={24}
 											disabled={!measurementHaloEnabled}
 											aria-labelledby='halo-color-label'
-											aria-label='Halo color picker - Select the outline color for the text halo effect'
+											aria-label={props.nls('measurementHaloColorPickerAria')}
 											aria-disabled={!measurementHaloEnabled}
-											title={measurementHaloEnabled ? 'Select halo (outline) color for the measurement label' : 'Enable halo first to change color'}
+											title={props.nls(measurementHaloEnabled ? 'measurementHaloColorTitle' : 'measurementEnableHaloColor')}
 										/>
 									</div>
 
@@ -5003,7 +5003,7 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 											}}
 											id='halo-size-label'
 										>
-											Size:
+											{props.nls('measurementSize')}:
 										</Label>
 										<NumericInput
 											size='sm'
@@ -5015,12 +5015,12 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 											style={{ width: '60px' }}
 											disabled={!measurementHaloEnabled}
 											aria-labelledby='halo-size-label'
-											aria-label='Halo size in pixels, minimum 1, maximum 10'
+											aria-label={props.nls('measurementHaloSizeAria')}
 											aria-valuemin={1}
 											aria-valuemax={10}
 											aria-valuenow={measurementHaloSize}
 											aria-disabled={!measurementHaloEnabled}
-											title={measurementHaloEnabled ? 'Halo thickness in pixels (1-10)' : 'Enable halo first to change size'}
+											title={props.nls(measurementHaloEnabled ? 'measurementHaloSizeTitle' : 'measurementEnableHaloSize')}
 										/>
 									</div>
 								</fieldset>
@@ -5030,10 +5030,10 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 								className='d-flex justify-content-between'
 								style={{ border: 'none', padding: 0, margin: 0 }}
 								role='group'
-								aria-label='Text formatting options'
+								aria-label={props.nls('textFormattingOptions')}
 							>
 								<legend className='sr-only' style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', overflow: 'hidden' }}>
-									Text Formatting Options
+									{props.nls('textFormattingOptions')}
 								</legend>
 								{/* Bold */}
 								<Label
@@ -5041,17 +5041,17 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 									style={{ minWidth: '70px', fontSize: '12px' }}
 									id='bold-label'
 								>
-									Bold:
+									{props.nls('fontBold')}:
 									<Switch
 										size='sm'
 										checked={measurementTextSymbol?.font?.weight === 'bold'}
 										onChange={(e) => updateMeasurementFontWeight(e.target.checked)}
 										className='ml-1'
 										aria-labelledby='bold-label'
-										aria-label={`Bold formatting is ${measurementTextSymbol?.font?.weight === 'bold' ? 'enabled' : 'disabled'}`}
+										aria-label={props.nls('measurementBoldAria', { state: props.nls(measurementTextSymbol?.font?.weight === 'bold' ? 'enabled' : 'disabled') })}
 										aria-checked={measurementTextSymbol?.font?.weight === 'bold'}
 										role='switch'
-										title='Toggle bold text formatting for the measurement label'
+										title={props.nls('measurementBoldTitle')}
 									/>
 								</Label>
 
@@ -5061,17 +5061,17 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 									style={{ minWidth: '70px', fontSize: '12px' }}
 									id='italic-label'
 								>
-									Italic:
+									{props.nls('fontItalic')}:
 									<Switch
 										size='sm'
 										checked={measurementTextSymbol?.font?.style === 'italic'}
 										onChange={(e) => updateMeasurementFontStyle(e.target.checked)}
 										className='ml-1'
 										aria-labelledby='italic-label'
-										aria-label={`Italic formatting is ${measurementTextSymbol?.font?.style === 'italic' ? 'enabled' : 'disabled'}`}
+										aria-label={props.nls('measurementItalicAria', { state: props.nls(measurementTextSymbol?.font?.style === 'italic' ? 'enabled' : 'disabled') })}
 										aria-checked={measurementTextSymbol?.font?.style === 'italic'}
 										role='switch'
-										title='Toggle italic text formatting for the measurement label'
+										title={props.nls('measurementItalicTitle')}
 									/>
 								</Label>
 
@@ -5081,29 +5081,29 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 									style={{ minWidth: '70px', fontSize: '12px' }}
 									id='underline-label'
 								>
-									Underline:
+									{props.nls('fontUnderline')}:
 									<Switch
 										size='sm'
 										checked={measurementTextSymbol?.font?.decoration === 'underline'}
 										onChange={(e) => updateMeasurementFontDecoration(e.target.checked)}
 										className='ml-1'
 										aria-labelledby='underline-label'
-										aria-label={`Underline formatting is ${measurementTextSymbol?.font?.decoration === 'underline' ? 'enabled' : 'disabled'}`}
+										aria-label={props.nls('measurementUnderlineAria', { state: props.nls(measurementTextSymbol?.font?.decoration === 'underline' ? 'enabled' : 'disabled') })}
 										aria-checked={measurementTextSymbol?.font?.decoration === 'underline'}
 										role='switch'
-										title='Toggle underline text formatting for the measurement label'
+										title={props.nls('measurementUnderlineTitle')}
 									/>
 								</Label>
 							</fieldset>
 
 							{/* Position Controls — equal-width buttons */}
-							<div role='group' aria-label='Label position controls'>
+							<div role='group' aria-label={props.nls('measurementLabelPositionControls')}>
 								<ButtonGroup
 									block
 									variant='contained'
 									size='sm'
 									role='group'
-									aria-label='Move and reset label position'
+									aria-label={props.nls('measurementMoveResetPosition')}
 								>
 									<Button
 										color='primary'
@@ -5117,36 +5117,36 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 											}
 										}}
 										disabled={isDraggingLabel}
-										title='Click to start moving this label. After clicking, move your mouse to the desired location and click again to place the label.'
+										title={props.nls('measurementMoveLabelTitle')}
 										style={{ margin: 0 }}
-										aria-label={isDraggingLabel ? 'Currently dragging label - move mouse and click to place' : 'Move label - Click to start repositioning the measurement label'}
+										aria-label={props.nls(isDraggingLabel ? 'measurementDraggingLabelAria' : 'measurementMoveLabelAria')}
 										aria-disabled={isDraggingLabel}
 										aria-pressed={isDraggingLabel}
 									>
-										{isDraggingLabel ? 'Dragging...' : 'Move Label'}
+										{props.nls(isDraggingLabel ? 'measurementDragging' : 'measurementMoveLabel')}
 									</Button>
 									<Button
 										onClick={resetLabelPosition}
-										title='Reset the label to its default calculated position based on the geometry centroid'
+									title={props.nls('measurementResetPositionTitle')}
 										disabled={!selectedMeasurementLabel.attributes?.hasCustomPosition}
 										style={{ margin: 0 }}
 										variant='outlined'
-										aria-label='Reset position - Restore label to default calculated position'
+									aria-label={props.nls('measurementResetPositionAria')}
 										aria-disabled={!selectedMeasurementLabel.attributes?.hasCustomPosition}
 									>
-										Reset Position
+									{props.nls('measurementResetPosition')}
 									</Button>
 								</ButtonGroup>
 								<Button
 									size='sm'
 									variant='contained'
 									onClick={cleanupMeasurementLabelSelection}
-									title='Deselect the current label and return to label selection mode'
+								title={props.nls('measurementClearSelectionTitle')}
 									block
 									style={{ margin: 0 }}
-									aria-label='Clear selection - Deselect current label and choose a different one'
+								aria-label={props.nls('measurementClearSelectionAria')}
 								>
-									Clear Selection
+								{props.nls('measurementClearSelection')}
 								</Button>
 							</div>
 						</div>
@@ -5160,7 +5160,7 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 		<div
 			className='drawToolbarDiv'
 			role='region'
-			aria-label='Measurement tools panel'
+			aria-label={props.nls('measurementToolsPanel')}
 		>
 			<div className='d-flex flex-column'>
 
@@ -5168,7 +5168,7 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 				<div
 					className="measure-toggle-stack"
 					role='group'
-					aria-label='Measurement configuration options'
+					aria-label={props.nls('measurementConfigurationOptions')}
 				>
 					{showTextPreview ? (
 						<></>
@@ -5178,17 +5178,17 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 								<span
 									title={
 										measureEnabled
-											? 'Measurements are enabled. New drawings will display measurement labels. Click to disable.'
-											: 'Measurements are disabled. Click to enable measurement labels on drawings.'
+											? props.nls('measurementsEnabledTitle')
+											: props.nls('measurementsDisabledTitle')
 									}
 								>
 									<CollapsableCheckbox
 										label={
 											drawLayer?.graphics?.length < 1
-												? 'Enable Measurements'
+												? props.nls('enableMeasurements')
 												: measureEnabled
-													? 'Measurements [Adding Measurements]'
-													: 'Measurements [Removing Measurements]'
+													? props.nls('measurementsAdding')
+													: props.nls('measurementsRemoving')
 										}
 										onCheckedChange={(e) => {
 											//console.log('🔧 User toggled measurements:', e);
@@ -5201,10 +5201,10 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 										className='w-100'
 										aria-label={
 											drawLayer?.graphics?.length < 1
-												? 'Enable Measurements - Toggle to show measurement labels on drawn graphics'
+												? props.nls('enableMeasurementsAria')
 												: measureEnabled
-													? 'Measurements enabled - Currently adding measurement labels to new graphics'
-													: 'Measurements disabled - Currently removing measurement labels from graphics'
+													? props.nls('measurementsAddingAria')
+													: props.nls('measurementsRemovingAria')
 										}
 										aria-expanded={measureEnabled}
 										aria-controls='measurement-settings-panel'
@@ -5213,7 +5213,7 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 											className='d-flex flex-column'
 											id='measurement-settings-panel'
 											role='region'
-											aria-label='Measurement unit and display settings'
+											aria-label={props.nls('measurementUnitDisplaySettings')}
 										>
 											{toolType === 'point' || toolType === '' || toolType === 'text' ? (
 												<></>
@@ -5222,20 +5222,20 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 													className='drawToolbarDiv'
 													id='linear-units-label'
 												>
-													Linear Units:
+											{props.nls('linearUnits')}
 													<Select
-														title='Select linear measurement units for distance and perimeter calculations'
+												title={props.nls('linearUnitsTitle')}
 														onChange={(e) => setDistanceUnit(e.target.value)}
 														defaultValue={availableDistanceUnits[props.config.defaultDistance]}
 														aria-labelledby='linear-units-label'
-														aria-label='Linear measurement units selector'
+												aria-label={props.nls('linearUnitsAria')}
 														aria-describedby='linear-units-description'
 													>
 														{availableDistanceUnits.map((unit, index) => (
 															<Option
 																key={index}
 																value={unit}
-																aria-label={`${unit.label} abbreviated as ${unit.abbreviation}`}
+													aria-label={props.nls('measurementUnitOptionAria', { label: unit.label, abbreviation: unit.abbreviation })}
 															>
 																{unit.label + ' (' + unit.abbreviation + ')'}
 															</Option>
@@ -5246,7 +5246,7 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 														className='sr-only'
 														style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', overflow: 'hidden' }}
 													>
-														Select the unit of measurement for linear distances such as length and perimeter
+												{props.nls('linearUnitsDescription')}
 													</span>
 												</Label>
 											)}
@@ -5258,20 +5258,20 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 													className='drawToolbarDiv'
 													id='area-units-label'
 												>
-													Area Units:
+											{props.nls('areaUnits')}
 													<Select
-														title='Select area measurement units for polygon and circle area calculations'
+												title={props.nls('areaUnitsTitle')}
 														onChange={(e) => setAreaUnit(e.target.value)}
 														defaultValue={availableAreaUnits[props.config.defaultArea]}
 														aria-labelledby='area-units-label'
-														aria-label='Area measurement units selector'
+												aria-label={props.nls('areaUnitsAria')}
 														aria-describedby='area-units-description'
 													>
 														{availableAreaUnits.map((unit, index) => (
 															<Option
 																key={index}
 																value={unit}
-																aria-label={`${unit.label} abbreviated as ${unit.abbreviation}`}
+													aria-label={props.nls('measurementUnitOptionAria', { label: unit.label, abbreviation: unit.abbreviation })}
 															>
 																{unit.label + ' (' + unit.abbreviation + ')'}
 															</Option>
@@ -5282,18 +5282,18 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 														className='sr-only'
 														style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', overflow: 'hidden' }}
 													>
-														Select the unit of measurement for area calculations on polygons and circles
+												{props.nls('areaUnitsDescription')}
 													</span>
 												</Label>
 											)}
 
 											{toolType === 'point' ? (
-												<div role='group' aria-label='Point coordinate display options'>
+											<div role='group' aria-label={props.nls('pointCoordinateDisplayOptions')}>
 													<fieldset style={{ border: 'none', padding: 0, margin: 0 }}>
 														<legend className='sr-only' style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', overflow: 'hidden' }}>
-															Coordinate format options
+													{props.nls('coordinateFormatOptions')}
 														</legend>
-														<div className='d-flex justify-content-center' role='group' aria-label='Select coordinate formats to display'>
+												<div className='d-flex justify-content-center' role='group' aria-label={props.nls('selectCoordinateFormats')}>
 															<Label
 																centric
 																id='xy-checkbox-label'
@@ -5303,11 +5303,11 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 																	checked={xy}
 																	onChange={() => setXy(!xy)}
 																	aria-labelledby='xy-checkbox-label'
-																	aria-label={`XY coordinates ${xy ? 'enabled' : 'disabled'}. Display projected X and Y coordinate values.`}
+															aria-label={props.nls('xyCoordinatesAria', { state: props.nls(xy ? 'enabled' : 'disabled') })}
 																	aria-checked={xy}
-																	title='Toggle display of projected XY coordinates in the map coordinate system'
+															title={props.nls('xyCoordinatesTitle')}
 																/>
-																XY
+																{props.nls('pointXYLabel')}
 															</Label>
 															<Label
 																centric
@@ -5318,11 +5318,11 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 																	checked={latLong}
 																	onChange={() => setLatLong(!latLong)}
 																	aria-labelledby='latlong-checkbox-label'
-																	aria-label={`Latitude/Longitude ${latLong ? 'enabled' : 'disabled'}. Display geographic latitude and longitude values.`}
+															aria-label={props.nls('latLongAria', { state: props.nls(latLong ? 'enabled' : 'disabled') })}
 																	aria-checked={latLong}
-																	title='Toggle display of geographic latitude and longitude coordinates'
+															title={props.nls('latLongTitle')}
 																/>
-																Lat/Long
+																{props.nls('pointLatLongLabel')}
 															</Label>
 															{xy || latLong ? (
 																<Label
@@ -5334,11 +5334,11 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 																		checked={wkid}
 																		onChange={() => setWkid(!wkid)}
 																		aria-labelledby='wkid-checkbox-label'
-																		aria-label={`Well-Known ID ${wkid ? 'enabled' : 'disabled'}. Display the spatial reference system identifier.`}
+																aria-label={props.nls('wkidAria', { state: props.nls(wkid ? 'enabled' : 'disabled') })}
 																		aria-checked={wkid}
-																		title='Toggle display of the Well-Known ID (WKID) spatial reference identifier'
+																title={props.nls('wkidTitle')}
 																	/>
-																	WKID
+																	{props.nls('pointWKIDLabel')}
 																</Label>
 															) : (
 																<></>
@@ -5350,7 +5350,7 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 														className='d-flex justify-content-center'
 														id='point-decimal-label'
 													>
-														Decimal Places:
+													{props.nls('decimalPlaces')}
 														<NumericInput
 															className='decimalInput ml-2'
 															size='sm'
@@ -5360,11 +5360,11 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 															value={pointRound}
 															onChange={(value) => setPointRound(value)}
 															aria-labelledby='point-decimal-label'
-															aria-label='Number of decimal places for point coordinates, minimum 0, maximum 10'
+													aria-label={props.nls('pointDecimalPlacesAria')}
 															aria-valuemin={0}
 															aria-valuemax={10}
 															aria-valuenow={pointRound}
-															title='Set the number of decimal places for coordinate precision (0-10)'
+													title={props.nls('pointDecimalPlacesTitle')}
 														/>
 													</Label>
 												</div>
@@ -5373,12 +5373,12 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 											)}
 
 											{toolType === 'polyline' || toolType === 'freepolyline' ? (
-												<div role='group' aria-label='Line measurement display options'>
+											<div role='group' aria-label={props.nls('lineMeasurementDisplayOptions')}>
 													<fieldset style={{ border: 'none', padding: 0, margin: 0 }}>
 														<legend className='sr-only' style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', overflow: 'hidden' }}>
-															Line measurement display options
+													{props.nls('lineMeasurementDisplayOptions')}
 														</legend>
-														<div className='d-flex justify-content-center' role='group' aria-label='Select which measurements to display'>
+												<div className='d-flex justify-content-center' role='group' aria-label={props.nls('selectMeasurementsDisplay')}>
 															<Label
 																centric
 																id='length-checkbox-label'
@@ -5388,11 +5388,11 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 																	checked={lengthOn}
 																	onChange={() => setLengthOn(!lengthOn)}
 																	aria-labelledby='length-checkbox-label'
-																	aria-label={`Total length measurement ${lengthOn ? 'enabled' : 'disabled'}. Display the total length of the line.`}
+															aria-label={props.nls('totalLengthAria', { state: props.nls(lengthOn ? 'enabled' : 'disabled') })}
 																	aria-checked={lengthOn}
-																	title='Toggle display of the total line length measurement'
+															title={props.nls('totalLengthTitle')}
 																/>
-																Length
+															{props.nls('drawToolLengthTip')}
 															</Label>
 															<Label
 																centric
@@ -5403,11 +5403,11 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 																	checked={segmentsOn}
 																	onChange={() => setSegmentsOn(!segmentsOn)}
 																	aria-labelledby='line-segments-checkbox-label'
-																	aria-label={`Individual line segment measurements ${segmentsOn ? 'enabled' : 'disabled'}. Display length labels on each segment of the line.`}
+															aria-label={props.nls('lineSegmentsAria', { state: props.nls(segmentsOn ? 'enabled' : 'disabled') })}
 																	aria-checked={segmentsOn}
-																	title='Toggle display of individual segment length labels along the line'
+															title={props.nls('lineSegmentsTitle')}
 																/>
-																Line Segments
+															{props.nls('lineSegments')}
 															</Label>
 														</div>
 													</fieldset>
@@ -5422,12 +5422,12 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 																	checked={rotateSegments}
 																	onChange={() => setRotateSegments(!rotateSegments)}
 																	aria-labelledby='rotate-segments-label'
-																	aria-label={`Rotate segment labels ${rotateSegments ? 'enabled' : 'disabled'}. When enabled, segment labels rotate to align with their line segment.`}
+															aria-label={props.nls('rotateSegmentLabelsAria', { state: props.nls(rotateSegments ? 'enabled' : 'disabled'), geometry: props.nls('lineSegment') })}
 																	aria-checked={rotateSegments}
 																	role='switch'
-																	title='Toggle whether segment labels rotate to align with their line segment orientation'
+															title={props.nls('rotateSegmentLabelsTitle', { geometry: props.nls('lineSegment') })}
 																/>
-																Rotate Line Segment Labels
+															{props.nls('rotateLineSegmentLabels')}
 															</Label>
 														</div>
 													)}
@@ -5436,7 +5436,7 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 														className='d-flex justify-content-center'
 														id='line-decimal-label'
 													>
-														Decimal Places:
+													{props.nls('decimalPlaces')}
 														<NumericInput
 															className='decimalInput ml-2'
 															size='sm'
@@ -5446,11 +5446,11 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 															value={otherRound}
 															onChange={(value) => setOtherRound(value)}
 															aria-labelledby='line-decimal-label'
-															aria-label='Number of decimal places for line measurements, minimum 0, maximum 10'
+													aria-label={props.nls('lineDecimalPlacesAria')}
 															aria-valuemin={0}
 															aria-valuemax={10}
 															aria-valuenow={otherRound}
-															title='Set the number of decimal places for measurement precision (0-10)'
+													title={props.nls('measurementDecimalPlacesTitle')}
 														/>
 													</Label>
 													{toolType === 'freepolyline' ? (
@@ -5459,9 +5459,9 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 															role='alert'
 															aria-live='polite'
 															tabIndex={0}
-															title='Warning about freehand line segments'
+														title={props.nls('freehandLineSegmentsWarningTitle')}
 														>
-															Line Segments not recommended for freehand tools.
+														{props.nls('freehandLineSegmentsWarning')}
 														</Alert>
 													) : (
 														<></>
@@ -5472,12 +5472,12 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 											)}
 
 											{toolType === 'polygon' || toolType === 'freepolygon' || toolType === 'circle' ? (
-												<div role='group' aria-label='Polygon and circle measurement display options'>
+											<div role='group' aria-label={props.nls('polygonCircleMeasurementDisplayOptions')}>
 													<fieldset style={{ border: 'none', padding: 0, margin: 0 }}>
 														<legend className='sr-only' style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', overflow: 'hidden' }}>
-															Polygon and circle measurement display options
+													{props.nls('polygonCircleMeasurementDisplayOptions')}
 														</legend>
-														<div className='d-flex justify-content-center' role='group' aria-label='Select which measurements to display'>
+												<div className='d-flex justify-content-center' role='group' aria-label={props.nls('selectMeasurementsDisplay')}>
 															<Label
 																centric
 																id='area-checkbox-label'
@@ -5487,11 +5487,11 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 																	checked={areaOn}
 																	onChange={() => setAreaOn(!areaOn)}
 																	aria-labelledby='area-checkbox-label'
-																	aria-label={`Area measurement ${areaOn ? 'enabled' : 'disabled'}. Display the total area of the shape.`}
+															aria-label={props.nls('areaMeasurementAria', { state: props.nls(areaOn ? 'enabled' : 'disabled') })}
 																	aria-checked={areaOn}
-																	title='Toggle display of the area measurement for polygons and circles'
+															title={props.nls('areaMeasurementTitle')}
 																/>
-																Area
+															{props.nls('drawToolAreaTip')}
 															</Label>
 															<Label
 																centric
@@ -5502,11 +5502,11 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 																	checked={perimeterOn}
 																	onChange={() => setPerimeterOn(!perimeterOn)}
 																	aria-labelledby='perimeter-checkbox-label'
-																	aria-label={`Perimeter measurement ${perimeterOn ? 'enabled' : 'disabled'}. Display the total perimeter or circumference.`}
+															aria-label={props.nls('perimeterMeasurementAria', { state: props.nls(perimeterOn ? 'enabled' : 'disabled') })}
 																	aria-checked={perimeterOn}
-																	title='Toggle display of the perimeter (circumference for circles) measurement'
+															title={props.nls('perimeterMeasurementTitle')}
 																/>
-																Perimeter
+															{props.nls('perimeter')}
 															</Label>
 															{toolType === 'circle' ? (
 																<Label
@@ -5518,11 +5518,11 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 																		checked={radiusOn}
 																		onChange={() => setRadiusOn(!radiusOn)}
 																		aria-labelledby='radius-checkbox-label'
-																		aria-label={`Radius measurement ${radiusOn ? 'enabled' : 'disabled'}. Display the circle radius.`}
+																aria-label={props.nls('radiusMeasurementAria', { state: props.nls(radiusOn ? 'enabled' : 'disabled') })}
 																		aria-checked={radiusOn}
-																		title='Toggle display of the circle radius measurement'
+																title={props.nls('radiusMeasurementTitle')}
 																	/>
-																	Radius
+																{props.nls('radius')}
 																</Label>
 															) : (
 																<></>
@@ -5537,11 +5537,11 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 																		checked={segmentsOn}
 																		onChange={() => setSegmentsOn(!segmentsOn)}
 																		aria-labelledby='polygon-segments-checkbox-label'
-																		aria-label={`Individual segment measurements ${segmentsOn ? 'enabled' : 'disabled'}. Display length labels on each side of the polygon.`}
+																aria-label={props.nls('polygonSegmentsAria', { state: props.nls(segmentsOn ? 'enabled' : 'disabled') })}
 																		aria-checked={segmentsOn}
-																		title='Toggle display of individual segment length labels along polygon sides'
+																title={props.nls('polygonSegmentsTitle')}
 																	/>
-																	Line Segments
+																{props.nls('lineSegments')}
 																</Label>
 															) : (
 																<></>
@@ -5559,12 +5559,12 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 																	checked={rotateSegments}
 																	onChange={() => setRotateSegments(!rotateSegments)}
 																	aria-labelledby='polygon-rotate-segments-label'
-																	aria-label={`Rotate segment labels ${rotateSegments ? 'enabled' : 'disabled'}. When enabled, segment labels rotate to align with their polygon side.`}
+															aria-label={props.nls('rotateSegmentLabelsAria', { state: props.nls(rotateSegments ? 'enabled' : 'disabled'), geometry: props.nls('polygonSide') })}
 																	aria-checked={rotateSegments}
 																	role='switch'
-																	title='Toggle whether segment labels rotate to align with their polygon side orientation'
+															title={props.nls('rotateSegmentLabelsTitle', { geometry: props.nls('polygonSide') })}
 																/>
-																Rotate Line Segment Labels
+															{props.nls('rotateLineSegmentLabels')}
 															</Label>
 														</div>
 													)}
@@ -5573,7 +5573,7 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 														className='d-flex justify-content-center'
 														id='polygon-decimal-label'
 													>
-														Decimal Places:
+													{props.nls('decimalPlaces')}
 														<NumericInput
 															className='decimalInput ml-2'
 															size='sm'
@@ -5583,11 +5583,11 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 															value={otherRound}
 															onChange={(value) => setOtherRound(value)}
 															aria-labelledby='polygon-decimal-label'
-															aria-label='Number of decimal places for area and perimeter measurements, minimum 0, maximum 10'
+													aria-label={props.nls('polygonDecimalPlacesAria')}
 															aria-valuemin={0}
 															aria-valuemax={10}
 															aria-valuenow={otherRound}
-															title='Set the number of decimal places for measurement precision (0-10)'
+													title={props.nls('measurementDecimalPlacesTitle')}
 														/>
 													</Label>
 													{toolType === 'freepolygon' ? (
@@ -5596,9 +5596,9 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 															role='alert'
 															aria-live='polite'
 															tabIndex={0}
-															title='Warning about freehand polygon segments'
+														title={props.nls('freehandPolygonSegmentsWarningTitle')}
 														>
-															Line Segments not recommended for freehand tools.
+														{props.nls('freehandLineSegmentsWarning')}
 														</Alert>
 													) : (
 														<></>
@@ -5618,7 +5618,7 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 					)}
 
 					{/* Tooltips toggle */}
-					<span title={tooltips ? 'Click to disable on-screen drawing tooltips that provide guidance during drawing operations' : 'Click to enable helpful tooltips that appear while drawing'}>
+					<span title={props.nls(tooltips ? 'tooltipsEnabledTitle' : 'tooltipsDisabledTitle')}>
 						<CollapsableCheckbox
 							className='w-100'
 							checked={tooltips}
@@ -5626,8 +5626,8 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 							disableActionForUnchecked
 							openForCheck
 							closeForUncheck
-							label={tooltips ? 'Disable Tooltips' : 'Enable Tooltips'}
-							aria-label={tooltips ? 'Tooltips are enabled - Click to disable drawing tooltips' : 'Tooltips are disabled - Click to enable drawing tooltips'}
+							label={props.nls(tooltips ? 'disableTooltips' : 'enableTooltips')}
+							aria-label={props.nls(tooltips ? 'tooltipsEnabledAria' : 'tooltipsDisabledAria')}
 							aria-expanded={tooltips}
 							aria-controls='tooltips-info-panel'
 						>
@@ -5635,15 +5635,15 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 								className='ml-3 my-1'
 								id='tooltips-info-panel'
 								role='region'
-								aria-label='Tooltips information'
+								aria-label={props.nls('tooltipsInformation')}
 							>
 								<ul
 									className='text-dark m-0 pl-3 small'
 									role='list'
-									aria-label='Keyboard shortcuts for tooltips'
+									aria-label={props.nls('tooltipsKeyboardShortcuts')}
 								>
-									<li role='listitem' aria-label='Keyboard tip: Press Tab key to manually enter coordinate values'>
-										Press <strong>Tab</strong> to manually enter values.
+									<li role='listitem' aria-label={props.nls('tooltipsKeyboardTipAria')}>
+										{props.nls('tooltipsKeyboardTip')}
 									</li>
 								</ul>
 							</div>
