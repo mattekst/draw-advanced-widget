@@ -893,7 +893,7 @@ export const TextStyleEditor: React.FC<Props> = ({ currentTextSymbol, updateSymb
                     {/* Font Size Input */}
                     <div role="group" aria-labelledby={ids.fontSizeDesc}>
                         <span id={ids.fontSizeDesc} className="sr-only" style={{ position: 'absolute', left: '-10000px', width: '1px', height: '1px', overflow: 'hidden' }}>
-                            {nls('ttextEditorFontSizeDesc', { size: fontSize })}
+                            {nls('textEditorFontSizeDesc', { size: fontSize })}
                         </span>
                         <NumericInput
                             id={ids.fontSizeInput}

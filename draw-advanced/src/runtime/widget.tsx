@@ -1512,7 +1512,7 @@ export default class Widget extends React.PureComponent<WidgetProps, States> {
 								</Select>
 							</Label>
 						</div>
-						<div className="text-center" style={{ fontSize: 13, opacity: 0.85 }}>{this.nls('drawTipsText')}&nbsp;&nbsp;&bull;&nbsp;&nbsp;Esc to {this.nls('cancel').toLowerCase()}</div>
+						<div className="text-center" style={{ fontSize: 13, opacity: 0.85 }}>{this.nls('drawTipsText')}</div>
 					</div>
 				)}
 			</div>
