@@ -22,15 +22,15 @@ const UnitMaker = (props) => {
         const letters = /^[a-zA-Z]+$/.test(unit)
         if (unit === '' || label === '' || abbreviation === '') {
             valid = false
-            text = 'Required Field Missing'
+            text = props.nls('settingUnitEditorRequiredFieldMissing')
         }
         if (!conversion) {
             valid = false
-            text = 'Invalid Conversion Factor'
+            text = props.nls('settingUnitEditorInvalidConversion')
         }
         if (!letters) {
             valid = false
-            text = 'Name May Only Contain Letters'
+            text = props.nls('settingUnitEditorNameLettersOnly')
         }
         for (let i = 0; i < allUnits.length; i++) {
             if (unit === allUnits[i].unit) {
@@ -39,7 +39,7 @@ const UnitMaker = (props) => {
                     continue
                 } else {
                     valid = false
-                    text = 'Name Must Be Unique'
+                    text = props.nls('settingUnitEditorNameUnique')
                 }
             }
         }
@@ -49,14 +49,14 @@ const UnitMaker = (props) => {
 
     return <CollapsablePanel
         defaultIsOpen={!oldUnit}
-        label={oldUnit ? `Edit/Delete - ${label}` : 'Create New Unit'}
+        label={oldUnit ? props.nls('settingUnitEditorEditDeleteTitle', { label }) : props.nls('settingUnitEditorCreateTitle')}
         type={oldUnit ? 'primary' : 'default'}
         className='mb-2'
     >
         <Label
             className='w-100'
         >
-            {props.handleChangeUnit ? 'Name (Cannot be changed):' : 'Name (Must be unique, letters only):'}
+            {props.nls(props.handleChangeUnit ? 'settingUnitEditorNameReadOnly' : 'settingUnitEditorNameNew')}
             <TextInput
                 allowClear={!props.handleChangeUnit}
                 required
@@ -69,7 +69,7 @@ const UnitMaker = (props) => {
         <Label
             className='w-100'
         >
-            Label (Full name used in menus):
+            {props.nls('settingUnitEditorLabel')}
             <TextInput
                 allowClear
                 required
@@ -81,7 +81,7 @@ const UnitMaker = (props) => {
         <Label
             className='w-100'
         >
-            Abbreviation (Used on map):
+            {props.nls('settingUnitEditorAbbreviation')}
             <TextInput
                 allowClear
                 required
@@ -93,7 +93,7 @@ const UnitMaker = (props) => {
         <Label
             className='w-100'
         >
-            {type === 'linear' ? 'Conversion Factor (One meter is how many of your unit?):' : 'Conversion Factor (One square meter is how many of your unit?):'}
+            {props.nls(type === 'linear' ? 'settingUnitEditorLinearConversion' : 'settingUnitEditorAreaConversion')}
             <NumericInput
                 className='w-100'
                 required
@@ -103,12 +103,12 @@ const UnitMaker = (props) => {
         </Label>
         {allValid ?
             <div>
-                <h6>{type === 'linear' ? `1 meter = ${conversion} ${label} (${abbreviation})` : `1 square meter = ${conversion} ${label} (${abbreviation})`}</h6>
+                <h6>{props.nls(type === 'linear' ? 'settingUnitEditorLinearPreview' : 'settingUnitEditorAreaPreview', { conversion, label, abbreviation })}</h6>
                 <Button
                     block
                     onClick={() => props.handleAddUnit ? props.handleAddUnit({ unit, label, abbreviation, conversion }, type) : props.handleChangeUnit({ unit, label, abbreviation, conversion }, type)}
                 >
-                    Save Unit
+                    {props.nls('settingUnitEditorSave')}
                 </Button>
             </div>
             : <h6>{validityText}</h6>}
@@ -118,7 +118,7 @@ const UnitMaker = (props) => {
                 type='danger'
                 onClick={() => props.handleDeleteUnit(unit, type)}
             >
-                Delete Unit
+                {props.nls('settingUnitEditorDelete')}
             </Button>
             : <></>
         }

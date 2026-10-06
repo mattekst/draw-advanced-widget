@@ -15,6 +15,7 @@ import UnitMaker from './components/unitMaker';
 interface Unit {
     unit: string;
     label: string;
+    labelKey?: string;
     abbreviation: string;
     conversion: number;
 }
@@ -46,35 +47,35 @@ interface SettingState {
 // ============================================================================
 
 const defaultDistanceUnits: Unit[] = [
-    { unit: 'kilometers', label: 'Kilometers', abbreviation: 'km', conversion: 0.001 },
-    { unit: 'miles', label: 'Miles', abbreviation: 'mi', conversion: 0.000621371 },
-    { unit: 'meters', label: 'Meters', abbreviation: 'm', conversion: 1 },
-    { unit: 'nautical-miles', label: 'Nautical Miles', abbreviation: 'NM', conversion: 0.000539957 },
-    { unit: 'feet', label: 'Feet', abbreviation: 'ft', conversion: 3.28084 },
-    { unit: 'yards', label: 'Yards', abbreviation: 'yd', conversion: 1.09361 }
+    { unit: 'kilometers', label: 'Kilometers', labelKey: 'settingUnitKilometers', abbreviation: 'km', conversion: 0.001 },
+    { unit: 'miles', label: 'Miles', labelKey: 'settingUnitMiles', abbreviation: 'mi', conversion: 0.000621371 },
+    { unit: 'meters', label: 'Meters', labelKey: 'settingUnitMeters', abbreviation: 'm', conversion: 1 },
+    { unit: 'nautical-miles', label: 'Nautical Miles', labelKey: 'settingUnitNauticalMiles', abbreviation: 'NM', conversion: 0.000539957 },
+    { unit: 'feet', label: 'Feet', labelKey: 'settingUnitFeet', abbreviation: 'ft', conversion: 3.28084 },
+    { unit: 'yards', label: 'Yards', labelKey: 'settingUnitYards', abbreviation: 'yd', conversion: 1.09361 }
 ];
 
 const defaultAreaUnits: Unit[] = [
-    { unit: 'square-kilometers', label: 'Square Kilometers', abbreviation: 'km\xb2', conversion: 0.000001 },
-    { unit: 'square-miles', label: 'Square Miles', abbreviation: 'mi\xb2', conversion: 3.86102e-7 },
-    { unit: 'acres', label: 'Acres', abbreviation: 'ac', conversion: 0.000247105 },
-    { unit: 'hectares', label: 'Hectares', abbreviation: 'ha', conversion: 0.0001 },
-    { unit: 'square-meters', label: 'Square Meters', abbreviation: 'm\xb2', conversion: 1 },
-    { unit: 'square-feet', label: 'Square Feet', abbreviation: 'ft\xb2', conversion: 10.7639 },
-    { unit: 'square-yards', label: 'Square Yards', abbreviation: 'yd\xb2', conversion: 1.19599 }
+    { unit: 'square-kilometers', label: 'Square Kilometers', labelKey: 'settingUnitSquareKilometers', abbreviation: 'km\xb2', conversion: 0.000001 },
+    { unit: 'square-miles', label: 'Square Miles', labelKey: 'settingUnitSquareMiles', abbreviation: 'mi\xb2', conversion: 3.86102e-7 },
+    { unit: 'acres', label: 'Acres', labelKey: 'settingUnitAcres', abbreviation: 'ac', conversion: 0.000247105 },
+    { unit: 'hectares', label: 'Hectares', labelKey: 'settingUnitHectares', abbreviation: 'ha', conversion: 0.0001 },
+    { unit: 'square-meters', label: 'Square Meters', labelKey: 'settingUnitSquareMeters', abbreviation: 'm\xb2', conversion: 1 },
+    { unit: 'square-feet', label: 'Square Feet', labelKey: 'settingUnitSquareFeet', abbreviation: 'ft\xb2', conversion: 10.7639 },
+    { unit: 'square-yards', label: 'Square Yards', labelKey: 'settingUnitSquareYards', abbreviation: 'yd\xb2', conversion: 1.19599 }
 ];
 
-const DRAW_TOOLS: Array<{ key: keyof Config; label: string; icon: string; desc: string }> = [
-    { key: 'enablePointTool', label: 'Point', icon: '\u25CF', desc: 'Place single point markers.' },
-    { key: 'enablePolylineTool', label: 'Polyline', icon: '\u2571', desc: 'Draw multi-segment lines by clicking vertices.' },
-    { key: 'enableFreePolylineTool', label: 'Freehand Line', icon: '\u223F', desc: 'Draw freehand lines by dragging.' },
-    { key: 'enableTextTool', label: 'Text', icon: 'T', desc: 'Place editable text labels on the map.' },
-    { key: 'enableRectangleTool', label: 'Rectangle', icon: '\u25AD', desc: 'Draw rectangles by dragging.' },
-    { key: 'enablePolygonTool', label: 'Polygon', icon: '\u2B20', desc: 'Draw multi-vertex polygons by clicking.' },
-    { key: 'enableFreePolygonTool', label: 'Freehand Polygon', icon: '\u25CC', desc: 'Draw freehand polygons by dragging.' },
-    { key: 'enableCircleTool', label: 'Circle', icon: '\u25CB', desc: 'Draw circles by dragging from a center point.' },
-    { key: 'enableTriangleTool', label: 'Triangle', icon: '\u25B3', desc: 'Draw equilateral triangles.' },
-    { key: 'enableCurveTools', label: 'Curve Tools', icon: '\u2312', desc: 'Bezier / arc curve drawing options. Requires a compatible JSAPI Sketch build.' }
+const DRAW_TOOLS: Array<{ key: keyof Config; labelKey: string; icon: string; descKey: string }> = [
+    { key: 'enablePointTool', labelKey: 'settingToolPoint', icon: '\u25CF', descKey: 'settingToolPointDescription' },
+    { key: 'enablePolylineTool', labelKey: 'settingToolPolyline', icon: '\u2571', descKey: 'settingToolPolylineDescription' },
+    { key: 'enableFreePolylineTool', labelKey: 'settingToolFreehandLine', icon: '\u223F', descKey: 'settingToolFreehandLineDescription' },
+    { key: 'enableTextTool', labelKey: 'settingToolText', icon: 'T', descKey: 'settingToolTextDescription' },
+    { key: 'enableRectangleTool', labelKey: 'settingToolRectangle', icon: '\u25AD', descKey: 'settingToolRectangleDescription' },
+    { key: 'enablePolygonTool', labelKey: 'settingToolPolygon', icon: '\u2B20', descKey: 'settingToolPolygonDescription' },
+    { key: 'enableFreePolygonTool', labelKey: 'settingToolFreehandPolygon', icon: '\u25CC', descKey: 'settingToolFreehandPolygonDescription' },
+    { key: 'enableCircleTool', labelKey: 'settingToolCircle', icon: '\u25CB', descKey: 'settingToolCircleDescription' },
+    { key: 'enableTriangleTool', labelKey: 'settingToolTriangle', icon: '\u25B3', descKey: 'settingToolTriangleDescription' },
+    { key: 'enableCurveTools', labelKey: 'settingToolCurveTools', icon: '\u2312', descKey: 'settingToolCurveToolsDescription' }
 ];
 
 // ============================================================================
@@ -142,9 +143,9 @@ export default class Setting extends React.PureComponent<SettingProps, SettingSt
     // Config helpers
     // ========================================================================
 
-    formatMessage = (id) => {
+    formatMessage = (id: string, values?: Record<string, any>) => {
         return this.props.intl
-            ? this.props.intl.formatMessage({ id: id, defaultMessage: defaultMessages[id] || id })
+            ? this.props.intl.formatMessage({ id: id, defaultMessage: defaultMessages[id] || id }, values)
             : id
     }
 
@@ -285,16 +286,16 @@ export default class Setting extends React.PureComponent<SettingProps, SettingSt
         reader.onload = (event) => {
             this.setState({ importXml: (event.target?.result as string) || '', importError: '', importSuccess: false })
         }
-        reader.onerror = () => this.setState({ importError: 'Could not read the selected file.' })
+        reader.onerror = () => this.setState({ importError: this.formatMessage('settingImportReadError') })
         reader.readAsText(file)
         if (this.fileInputRef.current) this.fileInputRef.current.value = ''
     }
 
     handleApplyImport = () => {
         const text = (this.state.importXml || '').trim()
-        if (!text) { this.setState({ importError: 'Paste XML or load a file first.', importSuccess: false }); return }
+        if (!text) { this.setState({ importError: this.formatMessage('settingImportEmptyError'), importSuccess: false }); return }
         const parsed = this.parseSettingsXml(text)
-        if (!parsed) { this.setState({ importError: 'Could not parse this file. Make sure it is a Draw Advanced settings XML export.', importSuccess: false }); return }
+        if (!parsed) { this.setState({ importError: this.formatMessage('settingImportParseError'), importSuccess: false }); return }
 
         let cfg = this.props.config
         for (const [key, value] of Object.entries(parsed)) {
@@ -405,7 +406,7 @@ export default class Setting extends React.PureComponent<SettingProps, SettingSt
                 appId = pathMatch ? pathMatch[1] : null;
             }
             if (!appId) {
-                this.setState({ scanning: false, scanMessage: 'Could not determine the app ID from the URL. Enter the widget ID manually below.' });
+                this.setState({ scanning: false, scanMessage: this.formatMessage('settingScanAppIdError') });
                 return;
             }
 
@@ -441,7 +442,7 @@ export default class Setting extends React.PureComponent<SettingProps, SettingSt
                     .sort((a, b) => a.label.localeCompare(b.label));
                 this.setState({ detectedWidgets: allWidgets, scanMessage: '' });
             } else {
-                this.setState({ scanMessage: `Could not load the app config. Enter the widget ID manually. Your config is at: server/public/apps/${appId}/config.json` });
+                this.setState({ scanMessage: this.formatMessage('settingLoadAppConfigError', { appId }) });
             }
         } catch (e) {
             console.warn('Draw Widget Scan: Error', e);
@@ -521,6 +522,12 @@ export default class Setting extends React.PureComponent<SettingProps, SettingSt
         const { useMapWidgetIds, config } = this.props
         const userDistances = toMutableUnits(config.userDistances)
         const userAreas = toMutableUnits(config.userAreas)
+        const availableDistanceUnits = this.state.availableDistanceUnits.map(unit =>
+            unit.labelKey ? { ...unit, label: this.formatMessage(unit.labelKey) } : unit
+        )
+        const availableAreaUnits = this.state.availableAreaUnits.map(unit =>
+            unit.labelKey ? { ...unit, label: this.formatMessage(unit.labelKey) } : unit
+        )
 
         const enabledToolCount = DRAW_TOOLS.filter(t => config[t.key] !== false).length;
         const myDrawingsEnabled = config.enableMyDrawings !== false;
@@ -539,14 +546,14 @@ export default class Setting extends React.PureComponent<SettingProps, SettingSt
                             <MapWidgetSelector onSelect={this.onMapWidgetSelected} useMapWidgetIds={useMapWidgetIds} />
                         </SettingRow>
                         <SettingRow label={this.formatMessage('selectDrawMode')} flow='wrap'>
-                            <Select value={config.creationMode} onChange={this.handleDrawModeChange} className='drop-height' aria-label='Drawing creation mode'>
-                                <Option value={DrawMode.CONTINUOUS} title='Keep the active tool selected so users can draw multiple shapes in a row.'>{this.formatMessage('drawModeContinuous')}</Option>
-                                <Option value={DrawMode.SINGLE} title='Deactivate the tool after each completed shape.'>{this.formatMessage('drawModeSingle')}</Option>
+                            <Select value={config.creationMode} onChange={this.handleDrawModeChange} className='drop-height' aria-label={this.formatMessage('settingDrawingCreationMode')}>
+                                <Option value={DrawMode.CONTINUOUS} title={this.formatMessage('settingContinuousModeTitle')}>{this.formatMessage('drawModeContinuous')}</Option>
+                                <Option value={DrawMode.SINGLE} title={this.formatMessage('settingSingleModeTitle')}>{this.formatMessage('drawModeSingle')}</Option>
                             </Select>
                             <p style={{ ...s.sub, marginTop: '4px' }}>
                                 {config.creationMode === DrawMode.CONTINUOUS
-                                    ? 'Drawing tool stays active after completing each shape.'
-                                    : 'Drawing tool deactivates after completing one shape.'}
+                                    ? this.formatMessage('settingContinuousModeHelp')
+                                    : this.formatMessage('settingSingleModeHelp')}
                             </p>
                         </SettingRow>
                     </SettingSection>
@@ -554,25 +561,21 @@ export default class Setting extends React.PureComponent<SettingProps, SettingSt
                     {/* ================================================================
                         SECTION: IMPORT / EXPORT SETTINGS
                     ================================================================ */}
-                    <SettingSection title="Import / Export Settings">
-                        <p style={s.sectionDesc}>
-                            Save this widget&apos;s configuration to an XML file, or load a saved file to copy settings
-                            between applications. Importing merges the file&apos;s values onto the current configuration.
-                            The selected map widget is not included.
-                        </p>
+                    <SettingSection title={this.formatMessage('settingImportExportTitle')}>
+                        <p style={s.sectionDesc}>{this.formatMessage('settingImportExportDescription')}</p>
 
                         {/* Export */}
                         <div style={s.fieldRow}>
-                            <Label style={s.fieldLabel}>Export</Label>
+                            <Label style={s.fieldLabel}>{this.formatMessage('settingExport')}</Label>
                             <div style={s.quickBtns}>
-                                <Tooltip title='Build an XML document from the current settings and show it below.' placement='top'>
-                                    <Button size='sm' type='primary' onClick={this.handleGenerateExport} aria-label='Generate settings XML' title='Generate settings XML'>
-                                        Generate XML
+                                <Tooltip title={this.formatMessage('settingBuildXmlTooltip')} placement='top'>
+                                    <Button size='sm' type='primary' onClick={this.handleGenerateExport} aria-label={this.formatMessage('settingGenerateXml')} title={this.formatMessage('settingGenerateXml')}>
+                                        {this.formatMessage('settingGenerateXml')}
                                     </Button>
                                 </Tooltip>
-                                <Tooltip title='Download the current settings as an .xml file.' placement='top'>
-                                    <Button size='sm' type='default' onClick={this.handleDownloadExport} aria-label='Download settings XML file' title='Download settings as an .xml file'>
-                                        Download File
+                                <Tooltip title={this.formatMessage('settingDownloadXmlTooltip')} placement='top'>
+                                    <Button size='sm' type='default' onClick={this.handleDownloadExport} aria-label={this.formatMessage('settingDownloadFile')} title={this.formatMessage('settingDownloadXmlTooltip')}>
+                                        {this.formatMessage('settingDownloadFile')}
                                     </Button>
                                 </Tooltip>
                             </div>
@@ -583,11 +586,11 @@ export default class Setting extends React.PureComponent<SettingProps, SettingSt
                                         style={{ minHeight: '120px', fontFamily: 'monospace', fontSize: '11px' }}
                                         readOnly
                                         value={this.state.exportXml}
-                                        aria-label='Exported settings XML'
+                                        aria-label={this.formatMessage('settingExportedXml')}
                                     />
                                     <div style={{ ...s.quickBtns, marginTop: '6px' }}>
-                                        <Button size='sm' type='tertiary' onClick={this.handleCopyExport} aria-label='Copy settings XML to clipboard' title='Copy XML to clipboard'>
-                                            Copy to Clipboard
+                                        <Button size='sm' type='tertiary' onClick={this.handleCopyExport} aria-label={this.formatMessage('settingCopyXmlAria')} title={this.formatMessage('settingCopyXmlTitle')}>
+                                            {this.formatMessage('settingCopyToClipboard')}
                                         </Button>
                                     </div>
                                 </>
@@ -598,7 +601,7 @@ export default class Setting extends React.PureComponent<SettingProps, SettingSt
 
                         {/* Import */}
                         <div style={s.fieldRow}>
-                            <Label style={s.fieldLabel}>Import</Label>
+                            <Label style={s.fieldLabel}>{this.formatMessage('settingImport')}</Label>
                             <input
                                 ref={this.fileInputRef}
                                 type='file'
@@ -609,27 +612,27 @@ export default class Setting extends React.PureComponent<SettingProps, SettingSt
                                 tabIndex={-1}
                             />
                             <div style={s.quickBtns}>
-                                <Tooltip title='Choose a previously exported .xml file.' placement='top'>
-                                    <Button size='sm' type='default' onClick={() => this.fileInputRef.current?.click()} aria-label='Load settings from an XML file' title='Load settings from an .xml file'>
-                                        Load from File
+                                <Tooltip title={this.formatMessage('settingChooseXmlTooltip')} placement='top'>
+                                    <Button size='sm' type='default' onClick={() => this.fileInputRef.current?.click()} aria-label={this.formatMessage('settingLoadXmlAria')} title={this.formatMessage('settingLoadXmlTitle')}>
+                                        {this.formatMessage('settingLoadFromFile')}
                                     </Button>
                                 </Tooltip>
                             </div>
                             <Label className='w-100' style={{ fontSize: '12px', marginTop: '4px' }}>
-                                Or paste XML:
+                                {this.formatMessage('settingPasteXml')}
                                 <TextArea
                                     className='w-100 mt-1'
                                     style={{ minHeight: '120px', fontFamily: 'monospace', fontSize: '11px' }}
                                     value={this.state.importXml}
                                     onChange={(e) => this.setState({ importXml: e.target.value, importError: '', importSuccess: false })}
-                                    placeholder={'<?xml version="1.0" encoding="UTF-8"?>\n<DrawAdvancedSettings version="4.2.0">\n  <setting key="enablePointTool" type="boolean">true</setting>\n  ...\n</DrawAdvancedSettings>'}
-                                    aria-label='Paste settings XML to import'
+                                    placeholder={this.formatMessage('settingXmlImportPlaceholder')}
+                                    aria-label={this.formatMessage('settingPasteXmlAria')}
                                 />
                             </Label>
                             <div style={{ ...s.quickBtns, marginTop: '6px' }}>
-                                <Tooltip title='Apply the loaded or pasted settings to this widget.' placement='top'>
-                                    <Button size='sm' type='primary' onClick={this.handleApplyImport} aria-label='Apply imported settings' title='Apply imported settings'>
-                                        Apply Imported Settings
+                                <Tooltip title={this.formatMessage('settingApplyXmlTooltip')} placement='top'>
+                                    <Button size='sm' type='primary' onClick={this.handleApplyImport} aria-label={this.formatMessage('settingApplyXmlAria')} title={this.formatMessage('settingApplyXmlAria')}>
+                                        {this.formatMessage('settingApplyXml')}
                                     </Button>
                                 </Tooltip>
                             </div>
@@ -640,7 +643,7 @@ export default class Setting extends React.PureComponent<SettingProps, SettingSt
                             )}
                             {this.state.importSuccess && (
                                 <Alert type='success' role='status' aria-live='polite' style={{ width: '100%', marginTop: '6px' }}>
-                                    Settings imported. Review the sections below and click Save in the builder to keep them.
+                                    {this.formatMessage('settingImportSuccess')}
                                 </Alert>
                             )}
                         </div>
@@ -649,34 +652,34 @@ export default class Setting extends React.PureComponent<SettingProps, SettingSt
                     {/* ================================================================
                         SECTION 2: DRAW TOOLS
                     ================================================================ */}
-                    <SettingSection title={`Draw Tools (${enabledToolCount} of ${DRAW_TOOLS.length})`}>
-                        <p style={s.sectionDesc}>Choose which drawing tools appear in the toolbar. Disabled tools are hidden from users.</p>
+                    <SettingSection title={this.formatMessage('settingDrawToolsTitle', { enabled: enabledToolCount, total: DRAW_TOOLS.length })}>
+                        <p style={s.sectionDesc}>{this.formatMessage('settingDrawToolsDescription')}</p>
 
                         <div style={s.quickBtns}>
-                            <Button size="sm" type="default" title="Enable every drawing tool" aria-label="Enable all drawing tools" onClick={() => {
+                            <Button size="sm" type="default" title={this.formatMessage('settingEnableEveryDrawToolTitle')} aria-label={this.formatMessage('settingEnableAllDrawToolsAria')} onClick={() => {
                                 const updates: Record<string, any> = {};
                                 DRAW_TOOLS.forEach(t => { updates[t.key] = true; });
                                 this.setConfigBatch(updates);
-                            }}>Enable All</Button>
-                            <Button size="sm" type="default" title="Disable every drawing tool" aria-label="Disable all drawing tools" onClick={() => {
+                            }}>{this.formatMessage('settingEnableAll')}</Button>
+                            <Button size="sm" type="default" title={this.formatMessage('settingDisableEveryDrawToolTitle')} aria-label={this.formatMessage('settingDisableAllDrawToolsAria')} onClick={() => {
                                 const updates: Record<string, any> = {};
                                 DRAW_TOOLS.forEach(t => { updates[t.key] = false; });
                                 this.setConfigBatch(updates);
-                            }}>Disable All</Button>
+                            }}>{this.formatMessage('settingDisableAll')}</Button>
                         </div>
 
                         <div style={s.toolGrid}>
                             {DRAW_TOOLS.map(tool => (
-                                <Tooltip key={tool.key} title={tool.desc} placement='top'>
-                                    <div style={s.checkRow} title={tool.desc}>
+                                <Tooltip key={tool.key} title={this.formatMessage(tool.descKey)} placement='top'>
+                                    <div style={s.checkRow} title={this.formatMessage(tool.descKey)}>
                                         <Checkbox
                                             checked={config[tool.key] !== false}
                                             onChange={() => this.setConfig(tool.key, config[tool.key] === false)}
-                                            aria-label={`${tool.label} drawing tool. ${tool.desc}`}
+                                            aria-label={`${this.formatMessage(tool.labelKey)} drawing tool. ${this.formatMessage(tool.descKey)}`}
                                         />
                                         <span style={s.checkLabel}>
                                             <span style={s.toolIcon} aria-hidden="true">{tool.icon}</span>
-                                            {tool.label}
+                                            {this.formatMessage(tool.labelKey)}
                                         </span>
                                     </div>
                                 </Tooltip>
@@ -685,7 +688,7 @@ export default class Setting extends React.PureComponent<SettingProps, SettingSt
 
                         {enabledToolCount === 0 && (
                             <Alert type='warning' style={{ width: '100%', marginTop: '8px' }}>
-                                No draw tools enabled. Users will not be able to create new drawings.
+                                {this.formatMessage('settingNoDrawToolsWarning')}
                             </Alert>
                         )}
                     </SettingSection>
@@ -693,27 +696,27 @@ export default class Setting extends React.PureComponent<SettingProps, SettingSt
                     {/* ================================================================
                         SECTION 3: FEATURES & CAPABILITIES
                     ================================================================ */}
-                    <SettingSection title="Features &amp; Capabilities">
-                        <p style={s.sectionDesc}>Enable or disable major widget features. Disabled features are completely hidden from users.</p>
+                    <SettingSection title={this.formatMessage('settingFeaturesTitle')}>
+                        <p style={s.sectionDesc}>{this.formatMessage('settingFeaturesDescription')}</p>
 
-                        {this.renderToggle('enableSymbolEditor', 'Symbol Editor',
-                            'Color, size, and style controls for drawing symbols.')}
+                        {this.renderToggle('enableSymbolEditor', this.formatMessage('settingSymbolEditor'),
+                            this.formatMessage('settingSymbolEditorDescription'))}
 
-                        {this.renderToggle('enableMeasurements', 'Measurements',
-                            'Length, area, and perimeter measurement labels on drawings.')}
+                        {this.renderToggle('enableMeasurements', this.formatMessage('settingMeasurements'),
+                            this.formatMessage('settingMeasurementsDescription'))}
 
-                        {this.renderToggle('enableSnapping', 'Snapping',
-                            'Snap drawing vertices to features in other map layers.')}
+                        {this.renderToggle('enableSnapping', this.formatMessage('settingSnapping'),
+                            this.formatMessage('settingSnappingDescription'))}
 
-                        {this.renderToggle('enableBuffer', 'Buffer',
-                            'Create buffer zones around drawn features.')}
+                        {this.renderToggle('enableBuffer', this.formatMessage('settingBuffer'),
+                            this.formatMessage('settingBufferDescription'))}
 
                         {config.enableBuffer !== false && (
                             <div style={s.indent}>
-                                <p style={s.sub}>Default buffer values used when the widget first loads. Users can still change these at runtime.</p>
+                                <p style={s.sub}>{this.formatMessage('settingDefaultBufferValuesDescription')}</p>
 
                                 <div style={s.fieldRow}>
-                                    <Label style={s.fieldLabel} title='Initial buffer distance and unit applied to new buffers.'>Default Distance</Label>
+                                    <Label style={s.fieldLabel} title={this.formatMessage('settingInitialBufferDistanceUnit')}>{this.formatMessage('settingDefaultDistance')}</Label>
                                     <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                                         <NumericInput
                                             value={config.defaultBufferDistance ?? 100}
@@ -721,26 +724,26 @@ export default class Setting extends React.PureComponent<SettingProps, SettingSt
                                             step={0.1}
                                             onChange={(v) => this.setConfig('defaultBufferDistance', v)}
                                             style={{ width: '100px' }}
-                                            aria-label='Default buffer distance'
-                                            title='Initial buffer distance.'
+                                            aria-label={this.formatMessage('settingDefaultBufferDistanceAria')}
+                                            title={this.formatMessage('settingInitialBufferDistanceTitle')}
                                         />
                                         <Select
                                             value={config.defaultBufferUnit || 'feet'}
                                             onChange={(e) => this.setConfig('defaultBufferUnit', e.target.value)}
                                             style={{ flex: 1, minWidth: '110px' }}
-                                            aria-label='Default buffer unit'
-                                            title='Initial buffer distance unit.'
+                                            aria-label={this.formatMessage('settingDefaultBufferUnitAria')}
+                                            title={this.formatMessage('settingInitialBufferDistanceUnitTitle')}
                                         >
-                                            <Option value='feet'>Feet</Option>
-                                            <Option value='meters'>Meters</Option>
-                                            <Option value='miles'>Miles</Option>
-                                            <Option value='kilometers'>Kilometers</Option>
+                                            <Option value='feet'>{this.formatMessage('settingUnitFeet')}</Option>
+                                            <Option value='meters'>{this.formatMessage('settingUnitMeters')}</Option>
+                                            <Option value='miles'>{this.formatMessage('settingUnitMiles')}</Option>
+                                            <Option value='kilometers'>{this.formatMessage('settingUnitKilometers')}</Option>
                                         </Select>
                                     </div>
                                 </div>
 
                                 <div style={s.fieldRow}>
-                                    <Label style={s.fieldLabel} title='Initial buffer fill opacity (1\u2013100%).'>Default Opacity (%)</Label>
+                                    <Label style={s.fieldLabel} title={this.formatMessage('settingInitialBufferOpacityTitle')}>{this.formatMessage('settingDefaultOpacity')}</Label>
                                     <NumericInput
                                         value={config.defaultBufferOpacity ?? 75}
                                         min={1}
@@ -748,62 +751,62 @@ export default class Setting extends React.PureComponent<SettingProps, SettingSt
                                         step={1}
                                         onChange={(v) => this.setConfig('defaultBufferOpacity', v)}
                                         style={{ width: '100px' }}
-                                        aria-label='Default buffer opacity percentage'
-                                        title='Initial buffer fill opacity, 1 to 100 percent.'
+                                        aria-label={this.formatMessage('settingDefaultBufferOpacityAria')}
+                                        title={this.formatMessage('settingInitialBufferOpacityDescription')}
                                     />
                                 </div>
 
                                 <div style={s.fieldRow}>
-                                    <Label style={s.fieldLabel} title='Color used when a user turns on the custom buffer color option.'>Default Custom Color</Label>
+                                    <Label style={s.fieldLabel} title={this.formatMessage('settingDefaultCustomBufferColorDescription')}>{this.formatMessage('settingDefaultCustomColor')}</Label>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                         <ColorPicker
                                             width={28}
                                             height={28}
                                             color={config.defaultBufferColor || '#d83020'}
                                             onChange={(c: string) => this.setConfig('defaultBufferColor', c)}
-                                            aria-label='Default buffer custom color'
-                                            title='Default custom buffer color.'
+                                            aria-label={this.formatMessage('settingDefaultBufferColorAria')}
+                                            title={this.formatMessage('settingDefaultBufferColorTitle')}
                                         />
-                                        <span style={{ ...s.sub, margin: 0, flex: 1 }}>Used when a user enables custom buffer color.</span>
+                                        <span style={{ ...s.sub, margin: 0, flex: 1 }}>{this.formatMessage('settingCustomBufferColorNote')}</span>
                                     </div>
                                 </div>
                             </div>
                         )}
 
-                        {this.renderToggle('enableUndoRedo', 'Undo / Redo',
-                            'Undo and redo buttons during active drawing.')}
+                        {this.renderToggle('enableUndoRedo', this.formatMessage('settingUndoRedo'),
+                            this.formatMessage('settingUndoRedoDescription'))}
 
-                        {this.renderToggle('enableCopyFromMap', 'Copy from Map',
-                            'Copy features from map layers into drawings. Includes single click, multi-select, and spatial selection modes.')}
+                        {this.renderToggle('enableCopyFromMap', this.formatMessage('settingCopyFromMap'),
+                            this.formatMessage('settingCopyFromMapDescription'))}
                     </SettingSection>
 
                     {/* ================================================================
                         SECTION 4: MY DRAWINGS PANEL
                     ================================================================ */}
-                    <SettingSection title="My Drawings Panel">
-                        {this.renderToggle('enableMyDrawings', 'Enable My Drawings',
-                            'Tabbed panel for managing, sorting, and organizing saved drawings. When disabled, there is no tab bar and only the Draw panel is shown.')}
+                    <SettingSection title={this.formatMessage('settingMyDrawingsTitle')}>
+                        {this.renderToggle('enableMyDrawings', this.formatMessage('settingEnableMyDrawings'),
+                            this.formatMessage('settingEnableMyDrawingsDescription'))}
 
                         {myDrawingsEnabled && (
                             <>
                                 <div style={s.divider} />
                                 <p style={{ ...s.sub, fontWeight: 600, color: 'var(--calcite-color-text-2, #495057)', marginBottom: '6px' }}>
-                                    Choose which actions are available in the My Drawings toolbar:
+                                    {this.formatMessage('settingMyDrawingsActionsDescription')}
                                 </p>
                                 <div style={s.indent}>
-                                    {this.renderCheck('enableMyDrawingsImport', 'Import (Shapefile, GeoJSON, KML)', true, 'Show the Import button for loading Shapefile (.zip), GeoJSON, and KML files into My Drawings.')}
-                                    {this.renderCheck('enableMyDrawingsExport', 'Export (Shapefile, GeoJSON, KML, CSV)', true, 'Show the Export menu. Buffers are exported as their own features in every format.')}
-                                    {this.renderCheck('enableMyDrawingsLock', 'Lock / Unlock drawings', true, 'Allow users to lock drawings so they cannot be moved or edited.')}
-                                    {this.renderCheck('enableMyDrawingsGroup', 'Group / Ungroup drawings', true, 'Allow users to group multiple drawings together for batch actions.')}
-                                    {this.renderCheck('enableMyDrawingsMerge', 'Merge selected drawings', true, 'Allow users to merge selected geometries into a single drawing.')}
-                                    {this.renderCheck('enableMyDrawingsDuplicate', 'Duplicate drawings', true, 'Allow users to duplicate an existing drawing.')}
-                                    {this.renderCheck('enableMyDrawingsZoomTo', 'Zoom to drawing', true, 'Show a control that zooms the map to a drawing extent.')}
-                                    {this.renderCheck('enableMyDrawingsProperties', 'View drawing properties', true, 'Show the per-drawing properties / details panel.')}
-                                    {this.renderCheck('enableMyDrawingsSort', 'Sort and filter controls', true, 'Show sorting and filtering controls at the top of the My Drawings list.')}
+                                    {this.renderCheck('enableMyDrawingsImport', this.formatMessage('settingImportDrawings'), true, this.formatMessage('settingImportDrawingsDescription'))}
+                                    {this.renderCheck('enableMyDrawingsExport', this.formatMessage('settingExportDrawings'), true, this.formatMessage('settingExportDrawingsDescription'))}
+                                    {this.renderCheck('enableMyDrawingsLock', this.formatMessage('settingLockDrawings'), true, this.formatMessage('settingLockDrawingsDescription'))}
+                                    {this.renderCheck('enableMyDrawingsGroup', this.formatMessage('settingGroupDrawings'), true, this.formatMessage('settingGroupDrawingsDescription'))}
+                                    {this.renderCheck('enableMyDrawingsMerge', this.formatMessage('settingMergeDrawings'), true, this.formatMessage('settingMergeDrawingsDescription'))}
+                                    {this.renderCheck('enableMyDrawingsDuplicate', this.formatMessage('settingDuplicateDrawings'), true, this.formatMessage('settingDuplicateDrawingsDescription'))}
+                                    {this.renderCheck('enableMyDrawingsZoomTo', this.formatMessage('settingZoomToDrawing'), true, this.formatMessage('settingZoomToDrawingDescription'))}
+                                    {this.renderCheck('enableMyDrawingsProperties', this.formatMessage('settingViewDrawingProperties'), true, this.formatMessage('settingViewDrawingPropertiesDescription'))}
+                                    {this.renderCheck('enableMyDrawingsSort', this.formatMessage('settingSortAndFilterDrawings'), true, this.formatMessage('settingSortAndFilterDrawingsDescription'))}
                                 </div>
 
                                 <div style={{ ...s.quickBtns, marginTop: '8px', paddingLeft: '12px' }}>
-                                    <Button size="sm" type="default" title="Enable every My Drawings action" aria-label="Enable all My Drawings actions" onClick={() => {
+                                    <Button size="sm" type="default" title={this.formatMessage('settingEnableEveryMyDrawingsActionTitle')} aria-label={this.formatMessage('settingEnableAllMyDrawingsActionsAria')} onClick={() => {
                                         this.setConfigBatch({
                                             enableMyDrawingsImport: true, enableMyDrawingsExport: true,
                                             enableMyDrawingsLock: true, enableMyDrawingsGroup: true,
@@ -811,8 +814,8 @@ export default class Setting extends React.PureComponent<SettingProps, SettingSt
                                             enableMyDrawingsZoomTo: true, enableMyDrawingsProperties: true,
                                             enableMyDrawingsSort: true
                                         });
-                                    }}>Enable All</Button>
-                                    <Button size="sm" type="default" title="Disable every My Drawings action" aria-label="Disable all My Drawings actions" onClick={() => {
+                                    }}>{this.formatMessage('settingEnableAll')}</Button>
+                                    <Button size="sm" type="default" title={this.formatMessage('settingDisableEveryMyDrawingsActionTitle')} aria-label={this.formatMessage('settingDisableAllMyDrawingsActionsAria')} onClick={() => {
                                         this.setConfigBatch({
                                             enableMyDrawingsImport: false, enableMyDrawingsExport: false,
                                             enableMyDrawingsLock: false, enableMyDrawingsGroup: false,
@@ -820,7 +823,7 @@ export default class Setting extends React.PureComponent<SettingProps, SettingSt
                                             enableMyDrawingsZoomTo: false, enableMyDrawingsProperties: false,
                                             enableMyDrawingsSort: false
                                         });
-                                    }}>Disable All</Button>
+                                    }}>{this.formatMessage('settingDisableAll')}</Button>
                                 </div>
                             </>
                         )}
@@ -829,51 +832,51 @@ export default class Setting extends React.PureComponent<SettingProps, SettingSt
                     {/* ================================================================
                         SECTION 5: DRAW LAYER
                     ================================================================ */}
-                    <SettingSection title="Draw Layer">
+                    <SettingSection title={this.formatMessage('settingDrawLayerTitle')}>
                         <SettingRow>
                             <Label className='w-100'>
-                                Default Layer Name:
+                                {this.formatMessage('settingDefaultLayerName')}
                                 <TextInput
                                     type='text'
                                     required
-                                    defaultValue={config.title || 'Drawn Graphics'}
+                                    defaultValue={config.title || this.formatMessage('settingDrawnGraphics')}
                                     onChange={(e) => this.handleTitle(e.target.value)}
-                                    aria-label="Default draw layer name"
-                                    title="Name applied to the graphics layer that holds drawings."
+                                    aria-label={this.formatMessage('settingDefaultDrawLayerNameAria')}
+                                    title={this.formatMessage('settingDefaultDrawLayerNameTitle')}
                                 />
                             </Label>
                         </SettingRow>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', padding: '4px 0' }}>
-                            {this.renderCheck('changeTitle', 'Allow users to rename the draw layer', false, 'When on, end users can edit the draw layer name at runtime.')}
-                            {this.renderCheck('listMode', 'Show draw layer in map layer list', false, 'When on, the draw graphics layer appears in the map\u2019s layer list / legend.')}
-                            {this.renderCheck('changeListMode', 'Allow users to toggle layer list visibility', false, 'When on, end users can show or hide the draw layer in the layer list.')}
+                            {this.renderCheck('changeTitle', this.formatMessage('settingAllowRenameDrawLayer'), false, this.formatMessage('settingAllowRenameDrawLayerDescription'))}
+                            {this.renderCheck('listMode', this.formatMessage('settingShowDrawLayerInList'), false, this.formatMessage('settingShowDrawLayerInListDescription'))}
+                            {this.renderCheck('changeListMode', this.formatMessage('settingToggleLayerListVisibility'), false, this.formatMessage('settingToggleLayerListVisibilityDescription'))}
                         </div>
                     </SettingSection>
 
                     {/* ================================================================
                         SECTION 6: DRAWING STORAGE
                     ================================================================ */}
-                    <SettingSection title="Drawing Storage">
+                    <SettingSection title={this.formatMessage('settingDrawingStorageTitle')}>
                         <SettingRow>
                             <Label className='w-100'>
-                                Storage Scope:
+                                {this.formatMessage('settingStorageScope')}
                                 <Select
                                     value={config.storageScope || StorageScope.APP_SPECIFIC}
                                     onChange={this.handleStorageScopeChange}
                                     className='drop-height'
-                                    aria-label='Select storage scope for saved drawings'
-                                    title='App-specific keeps drawings isolated to this experience; Global shares them across all experiences on this domain.'
+                                    aria-label={this.formatMessage('settingStorageScopeAria')}
+                                    title={this.formatMessage('settingStorageScopeTitle')}
                                 >
-                                    <Option value={StorageScope.APP_SPECIFIC}>This Application Only</Option>
-                                    <Option value={StorageScope.GLOBAL}>All Applications (Global)</Option>
+                                    <Option value={StorageScope.APP_SPECIFIC}>{this.formatMessage('settingThisApplicationOnly')}</Option>
+                                    <Option value={StorageScope.GLOBAL}>{this.formatMessage('settingAllApplicationsGlobal')}</Option>
                                 </Select>
                             </Label>
                         </SettingRow>
                         <SettingRow>
                             <Alert type='info' style={{ width: '100%' }}>
                                 {String(config.storageScope) === 'global'
-                                    ? 'Drawings are shared across all Experience Builder applications on this domain.'
-                                    : 'Drawings are isolated to this specific application.'}
+                                    ? this.formatMessage('settingGlobalStorageNotice')
+                                    : this.formatMessage('settingAppStorageNotice')}
                             </Alert>
                         </SettingRow>
 
@@ -881,10 +884,9 @@ export default class Setting extends React.PureComponent<SettingProps, SettingSt
 
                         <SettingRow>
                             <div style={{ width: '100%' }}>
-                                <Label style={s.toggleLabel}>Maximum Saved Drawings</Label>
+                                <Label style={s.toggleLabel}>{this.formatMessage('settingMaximumSavedDrawings')}</Label>
                                 <p style={s.sub}>
-                                    Limit how many drawings are stored in the browser. Set to 0 for unlimited.
-                                    Large numbers of complex drawings may impact browser performance.
+                                    {this.formatMessage('settingMaximumSavedDrawingsDescription')}
                                 </p>
                                 <NumericInput
                                     value={config.maxDrawings ?? 0}
@@ -892,8 +894,8 @@ export default class Setting extends React.PureComponent<SettingProps, SettingSt
                                     max={10000}
                                     step={10}
                                     onChange={(value) => this.setConfig('maxDrawings', value)}
-                                    aria-label="Maximum number of saved drawings"
-                                    title="Cap how many drawings persist in browser storage. 0 = unlimited. High counts of complex geometry can slow the browser."
+                                    aria-label={this.formatMessage('settingMaximumSavedDrawingsAria')}
+                                    title={this.formatMessage('settingMaximumSavedDrawingsTitle')}
                                     style={{ width: '120px', marginTop: '4px' }}
                                 />
                             </div>
@@ -903,23 +905,23 @@ export default class Setting extends React.PureComponent<SettingProps, SettingSt
                     {/* ================================================================
                         SECTION 7: INTEGRATIONS
                     ================================================================ */}
-                    <SettingSection title="Integrations">
-                        <p style={s.sectionDesc}>Connect the Draw widget with other widgets in the application.</p>
+                    <SettingSection title={this.formatMessage('settingIntegrationsTitle')}>
+                        <p style={s.sectionDesc}>{this.formatMessage('settingIntegrationsDescription')}</p>
 
-                        {this.renderOptInToggle('enableMailingLabels', 'Mailing Labels',
-                            'Show a button that sends drawing geometry to the Mailing Labels widget for parcel selection. The Mailing Labels widget must also have its Draw Widget integration enabled.')}
+                        {this.renderOptInToggle('enableMailingLabels', this.formatMessage('settingMailingLabels'),
+                            this.formatMessage('settingMailingLabelsDescription'))}
 
                         {config.enableMailingLabels === true && (
                             <div style={s.indent}>
                                 <SettingRow>
                                     <div style={{ width: '100%' }}>
-                                        <Label style={s.toggleLabel}>Target Widget</Label>
+                                        <Label style={s.toggleLabel}>{this.formatMessage('settingTargetWidget')}</Label>
                                         <div style={{ display: 'flex', gap: '4px', alignItems: 'center', marginBottom: '6px' }}>
                                             <Button size="sm" type="primary" onClick={this.scanForWidgets} disabled={this.state.scanning} style={{ whiteSpace: 'nowrap' }}>
-                                                {this.state.scanning ? 'Scanning...' : 'Scan App'}
+                                                {this.state.scanning ? this.formatMessage('settingScanning') : this.formatMessage('settingScanApp')}
                                             </Button>
                                             <span style={s.sub}>
-                                                Reads app config to find widgets
+                                                {this.formatMessage('settingScanAppDescription')}
                                             </span>
                                         </div>
                                         {this.state.scanMessage && (
@@ -939,9 +941,9 @@ export default class Setting extends React.PureComponent<SettingProps, SettingSt
                                                 value={config.mailingLabelsWidgetId || ''}
                                                 onChange={(e) => this.setConfig('mailingLabelsWidgetId', e.target.value)}
                                                 size="sm"
-                                                aria-label='Select the Mailing Labels widget'
+                                                aria-label={this.formatMessage('settingSelectWidgetAria', { widget: this.formatMessage('settingMailingLabels') })}
                                             >
-                                                <Option value=''>— Select a widget —</Option>
+                                                <Option value=''>{this.formatMessage('settingSelectWidget')}</Option>
                                                 {this.state.detectedWidgets.map(w => (
                                                     <Option key={w.id} value={w.id}>{w.label}</Option>
                                                 ))}
@@ -950,30 +952,30 @@ export default class Setting extends React.PureComponent<SettingProps, SettingSt
                                             <TextInput
                                                 value={config.mailingLabelsWidgetId || ''}
                                                 onChange={(e) => this.setConfig('mailingLabelsWidgetId', e.target.value)}
-                                                placeholder="e.g. widget_3"
-                                                aria-label="Mailing Labels target widget ID"
-                                                title="The widget ID of the Mailing Labels widget that should receive geometry."
+                                                placeholder={this.formatMessage('settingWidgetIdPlaceholder', { id: 'widget_3' })}
+                                                aria-label={this.formatMessage('settingTargetWidgetIdAria', { widget: this.formatMessage('settingMailingLabels') })}
+                                                title={this.formatMessage('settingTargetWidgetIdTitle', { widget: this.formatMessage('settingMailingLabels') })}
                                                 size="sm"
                                             />
                                         )}
                                         {config.mailingLabelsWidgetId && (
-                                            <span style={s.sub}>Widget ID: {config.mailingLabelsWidgetId}</span>
+                                            <span style={s.sub}>{this.formatMessage('settingWidgetId', { id: config.mailingLabelsWidgetId })}</span>
                                         )}
 
-                                        <Label style={{ ...s.toggleLabel, marginTop: '10px' }}>Parent Widget Controller</Label>
+                                        <Label style={{ ...s.toggleLabel, marginTop: '10px' }}>{this.formatMessage('settingParentWidgetController')}</Label>
                                         {this.state.detectedWidgets.length > 0 ? (
                                             <Select
                                                 value={config.mailingLabelsControllerId || ''}
                                                 onChange={(e) => this.setConfig('mailingLabelsControllerId', e.target.value)}
                                                 size="sm"
-                                                aria-label='Select the widget controller containing Mailing Labels'
+                                                aria-label={this.formatMessage('settingSelectWidgetControllerAria', { widget: this.formatMessage('settingMailingLabels') })}
                                             >
-                                                <Option value=''>— Select controller —</Option>
+                                                <Option value=''>{this.formatMessage('settingSelectController')}</Option>
                                                 {this.state.detectedWidgets.filter(w => w.label.toLowerCase().includes('controller')).map(w => (
                                                     <Option key={w.id} value={w.id}>{w.label}</Option>
                                                 ))}
                                                 {/* Also show all widgets in case the controller doesn't have "controller" in its name */}
-                                                <Option disabled>─── All Widgets ───</Option>
+                                                <Option disabled>{this.formatMessage('settingAllWidgetsDivider')}</Option>
                                                 {this.state.detectedWidgets.map(w => (
                                                     <Option key={`all-${w.id}`} value={w.id}>{w.label}</Option>
                                                 ))}
@@ -982,41 +984,40 @@ export default class Setting extends React.PureComponent<SettingProps, SettingSt
                                             <TextInput
                                                 value={config.mailingLabelsControllerId || ''}
                                                 onChange={(e) => this.setConfig('mailingLabelsControllerId', e.target.value)}
-                                                placeholder="e.g. widget_75"
-                                                aria-label="Mailing Labels parent controller widget ID"
-                                                title="The widget controller / sidebar that contains the Mailing Labels widget."
+                                                placeholder={this.formatMessage('settingWidgetIdPlaceholder', { id: 'widget_75' })}
+                                                aria-label={this.formatMessage('settingParentControllerIdAria', { widget: this.formatMessage('settingMailingLabels') })}
+                                                title={this.formatMessage('settingParentControllerTitle', { widget: this.formatMessage('settingMailingLabels') })}
                                                 size="sm"
                                             />
                                         )}
                                         <p style={s.sub}>
-                                            The widget controller / sidebar that contains the Mailing Labels widget.
-                                            This ensures the controller panel opens before sending geometry.
+                                            {this.formatMessage('settingParentControllerDescription', { widget: this.formatMessage('settingMailingLabels') })}
                                         </p>
                                     </div>
                                 </SettingRow>
                                 {!config.mailingLabelsWidgetId && (
                                     <Alert type='warning' style={{ width: '100%' }}>
-                                        No widget selected. Click "Scan App" to detect widgets, or enter the widget ID manually.
+                                        {this.formatMessage('settingNoWidgetSelected')}
                                     </Alert>
                                 )}
                             </div>
                         )}
                     </SettingSection>
 
-                    {this.renderOptInToggle('enableIdentifyByQuery', 'Identify By Query',
-                        'Show a button that sends drawing geometry to the Identify By Query widget for feature identification. The Identify By Query widget must also have its Draw Widget integration enabled.')}
+                    {this.renderOptInToggle('enableIdentifyByQuery', this.formatMessage('settingIdentifyByQuery'),
+                        this.formatMessage('settingIdentifyByQueryDescription'))}
 
                     {config.enableIdentifyByQuery === true && (
                         <div style={s.indent}>
                             <SettingRow>
                                 <div style={{ width: '100%' }}>
-                                    <Label style={s.toggleLabel}>Target Widget</Label>
+                                    <Label style={s.toggleLabel}>{this.formatMessage('settingTargetWidget')}</Label>
                                     <div style={{ display: 'flex', gap: '4px', alignItems: 'center', marginBottom: '6px' }}>
                                         <Button size="sm" type="primary" onClick={this.scanForWidgets} disabled={this.state.scanning} style={{ whiteSpace: 'nowrap' }}>
-                                            {this.state.scanning ? 'Scanning...' : 'Scan App'}
+                                            {this.state.scanning ? this.formatMessage('settingScanning') : this.formatMessage('settingScanApp')}
                                         </Button>
                                         <span style={s.sub}>
-                                            Reads app config to find widgets
+                                            {this.formatMessage('settingScanAppDescription')}
                                         </span>
                                     </div>
                                     {this.state.scanMessage && (
@@ -1036,9 +1037,9 @@ export default class Setting extends React.PureComponent<SettingProps, SettingSt
                                             value={config.identifyWidgetId || ''}
                                             onChange={(e) => this.setConfig('identifyWidgetId', e.target.value)}
                                             size="sm"
-                                            aria-label='Select the Identify By Query widget'
+                                            aria-label={this.formatMessage('settingSelectWidgetAria', { widget: this.formatMessage('settingIdentifyByQuery') })}
                                         >
-                                            <Option value=''>— Select a widget —</Option>
+                                            <Option value=''>{this.formatMessage('settingSelectWidget')}</Option>
                                             {this.state.detectedWidgets.map(w => (
                                                 <Option key={w.id} value={w.id}>{w.label}</Option>
                                             ))}
@@ -1047,30 +1048,30 @@ export default class Setting extends React.PureComponent<SettingProps, SettingSt
                                         <TextInput
                                             value={config.identifyWidgetId || ''}
                                             onChange={(e) => this.setConfig('identifyWidgetId', e.target.value)}
-                                            placeholder="e.g. widget_5"
-                                            aria-label="Identify By Query target widget ID"
-                                            title="The widget ID of the Identify By Query widget that should receive geometry."
+                                            placeholder={this.formatMessage('settingWidgetIdPlaceholder', { id: 'widget_5' })}
+                                            aria-label={this.formatMessage('settingTargetWidgetIdAria', { widget: this.formatMessage('settingIdentifyByQuery') })}
+                                            title={this.formatMessage('settingTargetWidgetIdTitle', { widget: this.formatMessage('settingIdentifyByQuery') })}
                                             size="sm"
                                         />
                                     )}
                                     {config.identifyWidgetId && (
-                                        <span style={s.sub}>Widget ID: {config.identifyWidgetId}</span>
+                                        <span style={s.sub}>{this.formatMessage('settingWidgetId', { id: config.identifyWidgetId })}</span>
                                     )}
 
-                                    <Label style={{ ...s.toggleLabel, marginTop: '10px' }}>Parent Widget Controller</Label>
+                                    <Label style={{ ...s.toggleLabel, marginTop: '10px' }}>{this.formatMessage('settingParentWidgetController')}</Label>
                                     {this.state.detectedWidgets.length > 0 ? (
                                         <Select
                                             value={config.identifyControllerId || ''}
                                             onChange={(e) => this.setConfig('identifyControllerId', e.target.value)}
                                             size="sm"
-                                            aria-label='Select the widget controller containing Identify By Query'
+                                            aria-label={this.formatMessage('settingSelectWidgetControllerAria', { widget: this.formatMessage('settingIdentifyByQuery') })}
                                         >
-                                            <Option value=''>— Select controller —</Option>
+                                            <Option value=''>{this.formatMessage('settingSelectController')}</Option>
                                             {this.state.detectedWidgets.filter(w => w.label.toLowerCase().includes('controller')).map(w => (
                                                 <Option key={w.id} value={w.id}>{w.label}</Option>
                                             ))}
                                             {/* Also show all widgets in case the controller doesn't have "controller" in its name */}
-                                            <Option disabled>─── All Widgets ───</Option>
+                                            <Option disabled>{this.formatMessage('settingAllWidgetsDivider')}</Option>
                                             {this.state.detectedWidgets.map(w => (
                                                 <Option key={`all-${w.id}`} value={w.id}>{w.label}</Option>
                                             ))}
@@ -1079,56 +1080,55 @@ export default class Setting extends React.PureComponent<SettingProps, SettingSt
                                         <TextInput
                                             value={config.identifyControllerId || ''}
                                             onChange={(e) => this.setConfig('identifyControllerId', e.target.value)}
-                                            placeholder="e.g. widget_76"
-                                            aria-label="Identify By Query parent controller widget ID"
-                                            title="The widget controller / sidebar that contains the Identify By Query widget."
+                                            placeholder={this.formatMessage('settingWidgetIdPlaceholder', { id: 'widget_76' })}
+                                            aria-label={this.formatMessage('settingParentControllerIdAria', { widget: this.formatMessage('settingIdentifyByQuery') })}
+                                            title={this.formatMessage('settingParentControllerTitle', { widget: this.formatMessage('settingIdentifyByQuery') })}
                                             size="sm"
                                         />
                                     )}
                                     <p style={s.sub}>
-                                        The widget controller / sidebar that contains the Identify By Query widget.
-                                        This ensures the controller panel opens before sending geometry.
+                                        {this.formatMessage('settingParentControllerDescription', { widget: this.formatMessage('settingIdentifyByQuery') })}
                                     </p>
                                 </div>
                             </SettingRow>
                             {!config.identifyWidgetId && (
                                 <Alert type='warning' style={{ width: '100%' }}>
-                                    No widget selected. Click "Scan App" to detect widgets, or enter the widget ID manually.
+                                    {this.formatMessage('settingNoWidgetSelected')}
                                 </Alert>
                             )}
                         </div>
                     )}
 
-                    {this.renderOptInToggle('enableIdentifyIntegration', 'Receive from Identify By Query',
-                        'Allow the Identify By Query widget to send feature geometries to this widget using the "Copy To Draw" button. Received geometries will appear in My Drawings and be saved to storage.')}
+                    {this.renderOptInToggle('enableIdentifyIntegration', this.formatMessage('settingReceiveFromIdentify'),
+                        this.formatMessage('settingReceiveFromIdentifyDescription'))}
 
                     {/* ================================================================
                         SECTION 8: MEASUREMENT UNITS
                     ================================================================ */}
-                    <SettingSection title="Measurement Units">
+                    <SettingSection title={this.formatMessage('settingMeasurementUnitsTitle')}>
                         {!measurementsEnabled ? (
                             <SettingRow>
                                 <Alert type='info' style={{ width: '100%' }}>
-                                    Enable Measurements in Features &amp; Capabilities to configure units.
+                                    {this.formatMessage('settingEnableMeasurementsToConfigureUnits')}
                                 </Alert>
                             </SettingRow>
                         ) : (
                             <>
                                 {/* Linear */}
                                 <SettingRow>
-                                    <Button onClick={() => this.setState({ linearSidePopper: true })} style={{ width: '100%' }} title='Add custom linear units or edit existing ones' aria-label='Add or change linear units'>
-                                        Add or Change Linear Units
+                                    <Button onClick={() => this.setState({ linearSidePopper: true })} style={{ width: '100%' }} title={this.formatMessage('settingAddOrChangeLinearUnitsTitle')} aria-label={this.formatMessage('settingAddOrChangeLinearUnitsAria')}>
+                                        {this.formatMessage('settingAddOrChangeLinearUnits')}
                                     </Button>
                                 </SettingRow>
                                 <SettingRow>
                                     <Label className='w-100'>
-                                        Default Linear Unit:
-                                        <Select title='Default linear unit used for length and perimeter measurements' aria-label='Default linear unit' onChange={(e) => this.handleDefaultDistance(e.target.value)} value={this.state.defaultDistanceUnit}>
-                                            {this.state.availableDistanceUnits.map((unit, index) => (
+                                        {this.formatMessage('settingDefaultLinearUnit')}
+                                        <Select title={this.formatMessage('settingDefaultLinearUnitDescription')} aria-label={this.formatMessage('settingDefaultLinearUnitAria')} onChange={(e) => this.handleDefaultDistance(e.target.value)} value={this.state.defaultDistanceUnit}>
+                                            {availableDistanceUnits.map((unit, index) => (
                                                 <Option key={index} value={index}>{unit.label} ({unit.abbreviation})</Option>
                                             ))}
                                         </Select>
-                                        {this.state.defaultDistanceUnit === null && <Alert type='warning'>Reset Default Distance Units</Alert>}
+                                        {this.state.defaultDistanceUnit === null && <Alert type='warning'>{this.formatMessage('settingResetDefaultDistanceUnits')}</Alert>}
                                     </Label>
                                 </SettingRow>
 
@@ -1136,22 +1136,22 @@ export default class Setting extends React.PureComponent<SettingProps, SettingSt
 
                                 {/* Area */}
                                 <SettingRow>
-                                    <Button onClick={() => this.setState({ areaSidePopper: true })} style={{ width: '100%' }} title='Add custom area units or edit existing ones' aria-label='Add or change area units'>
-                                        Add or Change Area Units
+                                    <Button onClick={() => this.setState({ areaSidePopper: true })} style={{ width: '100%' }} title={this.formatMessage('settingAddOrChangeAreaUnitsTitle')} aria-label={this.formatMessage('settingAddOrChangeAreaUnitsAria')}>
+                                        {this.formatMessage('settingAddOrChangeAreaUnits')}
                                     </Button>
                                 </SettingRow>
                                 <SettingRow>
                                     <Label className='w-100'>
-                                        Default Area Units:
-                                        <Select title='Default area unit used for area measurements' aria-label='Default area unit' onChange={(e) => this.handleDefaultArea(e.target.value)} value={this.state.defaultAreaUnit}>
-                                            {this.state.availableAreaUnits.map((unit, index) => (
+                                        {this.formatMessage('settingDefaultAreaUnits')}
+                                        <Select title={this.formatMessage('settingDefaultAreaUnitsDescription')} aria-label={this.formatMessage('settingDefaultAreaUnitsAria')} onChange={(e) => this.handleDefaultArea(e.target.value)} value={this.state.defaultAreaUnit}>
+                                            {availableAreaUnits.map((unit, index) => (
                                                 <Option key={index} value={index}>{unit.label} ({unit.abbreviation})</Option>
                                             ))}
                                         </Select>
                                         <span style={{ fontSize: '11px', color: 'var(--calcite-color-text-2, #6c757d)' }}>
-                                            Note: superscript characters may not display correctly here but will work in the application.
+                                            {this.formatMessage('settingSuperscriptNote')}
                                         </span>
-                                        {this.state.defaultAreaUnit === null && <Alert type='warning'>Reset Default Area Units</Alert>}
+                                        {this.state.defaultAreaUnit === null && <Alert type='warning'>{this.formatMessage('settingResetDefaultAreaUnits')}</Alert>}
                                     </Label>
                                 </SettingRow>
 
@@ -1159,30 +1159,29 @@ export default class Setting extends React.PureComponent<SettingProps, SettingSt
 
                                 {/* Label templates */}
                                 <div style={s.fieldRow}>
-                                    <Label style={s.fieldLabel} title='Template for polyline length labels.'>Polyline Label Template</Label>
+                                    <Label style={s.fieldLabel} title={this.formatMessage('settingPolylineLabelTemplateTitle')}>{this.formatMessage('settingPolylineLabelTemplate')}</Label>
                                     <TextInput
                                         className='w-100'
                                         value={config.measurePolylineLabel || ''}
                                         placeholder='{{length}} {{lengthUnit}}'
                                         onChange={(e) => this.setConfig('measurePolylineLabel', e.target.value)}
-                                        aria-label='Polyline measurement label template'
-                                        title='Template for polyline length labels. Tokens: {{length}}, {{lengthUnit}}.'
+                                        aria-label={this.formatMessage('settingPolylineMeasurementTemplateAria')}
+                                        title={this.formatMessage('settingPolylineMeasurementTemplateTitle', { tokens: '{{length}}, {{lengthUnit}}' })}
                                     />
                                 </div>
                                 <div style={s.fieldRow}>
-                                    <Label style={s.fieldLabel} title='Template for polygon area and perimeter labels.'>Polygon Label Template</Label>
+                                    <Label style={s.fieldLabel} title={this.formatMessage('settingPolygonLabelTemplateTitle')}>{this.formatMessage('settingPolygonLabelTemplate')}</Label>
                                     <TextInput
                                         className='w-100'
                                         value={config.measurePolygonLabel || ''}
-                                        placeholder='Area: {{area}} {{areaUnit}}'
+                                        placeholder={`${this.formatMessage('settingAreaTemplatePlaceholder')} {{area}} {{areaUnit}}`}
                                         onChange={(e) => this.setConfig('measurePolygonLabel', e.target.value)}
-                                        aria-label='Polygon measurement label template'
-                                        title='Template for polygon labels. Tokens: {{area}}, {{areaUnit}}, {{length}}, {{lengthUnit}}.'
+                                        aria-label={this.formatMessage('settingPolygonMeasurementTemplateAria')}
+                                        title={this.formatMessage('settingPolygonMeasurementTemplateTitle', { tokens: '{{area}}, {{areaUnit}}, {{length}}, {{lengthUnit}}' })}
                                     />
                                 </div>
                                 <p style={s.sub}>
-                                    Tokens: <code>{'{{length}}'}</code>, <code>{'{{lengthUnit}}'}</code>, <code>{'{{area}}'}</code>, <code>{'{{areaUnit}}'}</code>.
-                                    Leave blank to use built-in defaults.
+                                    {this.formatMessage('settingTemplateTokens')} <code>{'{{length}}'}</code>, <code>{'{{lengthUnit}}'}</code>, <code>{'{{area}}'}</code>, <code>{'{{areaUnit}}'}</code>. {this.formatMessage('settingLeaveBlankForDefaults')}
                                 </p>
                             </>
                         )}
@@ -1191,34 +1190,34 @@ export default class Setting extends React.PureComponent<SettingProps, SettingSt
                     {/* ================================================================
                         SECTION 9: WIDGET BEHAVIOR
                     ================================================================ */}
-                    <SettingSection title="Widget Behavior">
+                    <SettingSection title={this.formatMessage('settingWidgetBehaviorTitle')}>
                         {/* Default tab */}
                         {myDrawingsEnabled && (
                             <SettingRow>
                                 <Label className='w-100'>
-                                    Default Tab:
+                                    {this.formatMessage('settingDefaultTab')}
                                     <Select
                                         value={config.defaultTab || 'draw'}
                                         onChange={(e) => this.setConfig('defaultTab', e.target.value)}
-                                        aria-label='Select which tab opens by default'
-                                        title='Which tab is active when the widget first opens.'
+                                        aria-label={this.formatMessage('settingDefaultTabAria')}
+                                        title={this.formatMessage('settingDefaultTabTitle')}
                                     >
-                                        <Option value='draw'>Draw</Option>
-                                        <Option value='mydrawings'>My Drawings</Option>
+                                        <Option value='draw'>{this.formatMessage('settingDrawTab')}</Option>
+                                        <Option value='mydrawings'>{this.formatMessage('settingMyDrawingsTab')}</Option>
                                     </Select>
-                                    <p style={s.sub}>Which tab is active when the widget first opens.</p>
+                                    <p style={s.sub}>{this.formatMessage('settingDefaultTabTitle')}</p>
                                 </Label>
                             </SettingRow>
                         )}
 
                         {/* Confirm before clear */}
-                        {this.renderCheck('confirmBeforeClear', 'Require confirmation before clearing all drawings', true, 'Show a confirmation prompt before the Clear All / Delete All action runs.')}
+                        {this.renderCheck('confirmBeforeClear', this.formatMessage('settingRequireConfirmationToClear'), true, this.formatMessage('settingConfirmClearDescription'))}
 
                         {/* Turn off on close */}
                         <div style={{ marginTop: '4px' }}>
-                            {this.renderCheck('turnOffOnClose', 'Stop drawing when widget is closed', false, 'Cancel any active drawing session when the widget panel is closed. Recommended when the widget lives inside a Widget Controller.')}
+                            {this.renderCheck('turnOffOnClose', this.formatMessage('settingStopDrawingOnClose'), false, this.formatMessage('settingStopDrawingOnCloseDescription'))}
                             <p style={{ ...s.sub, marginLeft: '24px' }}>
-                                Enable when the widget is inside a Widget Controller so active drawings are cancelled on close.
+                                {this.formatMessage('settingStopDrawingOnCloseHint')}
                             </p>
                         </div>
                     </SettingSection>
@@ -1230,28 +1229,28 @@ export default class Setting extends React.PureComponent<SettingProps, SettingSt
                     position='right'
                     isOpen={this.state.linearSidePopper}
                     toggle={() => this.setState({ linearSidePopper: !this.state.linearSidePopper })}
-                    title='Change Linear Units'
+                    title={this.formatMessage('settingChangeLinearUnits')}
                     trigger={<span /> as any as HTMLElement}
                 >
-                    <Alert>The Default Linear Unit must be reset after changes in this panel.</Alert>
-                    <UnitMaker allUnits={this.state.availableDistanceUnits} handleAddUnit={this.handleAddUnit} type={'linear'} />
-                    {userDistances && userDistances.length > 0 && <div><hr /><h3>Edit Units</h3></div>}
+                    <Alert>{this.formatMessage('settingResetDefaultLinearUnitsNotice')}</Alert>
+                    <UnitMaker allUnits={availableDistanceUnits} handleAddUnit={this.handleAddUnit} type={'linear'} nls={this.formatMessage} />
+                    {userDistances && userDistances.length > 0 && <div><hr /><h3>{this.formatMessage('settingEditUnits')}</h3></div>}
                     {userDistances && userDistances.map((oldUnit, index) => (
-                        <UnitMaker key={index} allUnits={this.state.availableDistanceUnits} handleChangeUnit={this.handleChangeUnit} type={'linear'} oldUnit={oldUnit} handleDeleteUnit={this.handleDeleteUnit} />
+                        <UnitMaker key={index} allUnits={availableDistanceUnits} handleChangeUnit={this.handleChangeUnit} type={'linear'} oldUnit={oldUnit} handleDeleteUnit={this.handleDeleteUnit} nls={this.formatMessage} />
                     ))}
                 </SidePopper>
                 <SidePopper
                     position='right'
                     isOpen={this.state.areaSidePopper}
                     toggle={() => this.setState({ areaSidePopper: !this.state.areaSidePopper })}
-                    title='Change Area Units'
+                    title={this.formatMessage('settingChangeAreaUnits')}
                     trigger={<span /> as any as HTMLElement}
                 >
-                    <Alert>The Default Area Unit must be reset after changes in this panel.</Alert>
-                    <UnitMaker allUnits={this.state.availableAreaUnits} handleAddUnit={this.handleAddUnit} type={'area'} />
-                    {userAreas && userAreas.length > 0 && <div><hr /><h3>Edit Units</h3></div>}
+                    <Alert>{this.formatMessage('settingResetDefaultAreaUnitsNotice')}</Alert>
+                    <UnitMaker allUnits={availableAreaUnits} handleAddUnit={this.handleAddUnit} type={'area'} nls={this.formatMessage} />
+                    {userAreas && userAreas.length > 0 && <div><hr /><h3>{this.formatMessage('settingEditUnits')}</h3></div>}
                     {userAreas && userAreas.map((oldUnit, index) => (
-                        <UnitMaker key={index} allUnits={this.state.availableAreaUnits} handleChangeUnit={this.handleChangeUnit} type={'area'} oldUnit={oldUnit} handleDeleteUnit={this.handleDeleteUnit} />
+                        <UnitMaker key={index} allUnits={availableAreaUnits} handleChangeUnit={this.handleChangeUnit} type={'area'} oldUnit={oldUnit} handleDeleteUnit={this.handleDeleteUnit} nls={this.formatMessage} />
                     ))}
                 </SidePopper>
             </div>

@@ -912,7 +912,7 @@ System.register([], function (_export) {
         allowLocalStoragePermission: 'Tillåt behörighet till lokal lagring',
         storagePermissionRequired: 'Behörighet för lagring krävs',
         toUseTheMyDrawingsPanelYouMustAllowSavingDrawingsInYourBrows: 'För att använda panelen Mina ritobjekt måste du tillåta att ritobjekt sparas i webbläsarens lokala lagring.',
-        thisAllowsYourDrawingsToBeRememberedWhenYouReturnToThisPageL: 'Det gör att dina ritobjekt koms ihåg till nästa gång du återvänder till den här sidan.',
+        thisAllowsYourDrawingsToBeRememberedWhenYouReturnToThisPageL: 'Det gör att dina ritobjekt sparas till nästa gång du återvänder till den här sidan.',
         allowSavingDrawingsToYourBrowser: 'Tillåt att ritobjekt sparas i webbläsaren',
         allowLocalStorage: 'Tillåt lokal lagring',
         doNotAllowSavingDrawingsToYourBrowser: 'Tillåt inte att ritobjekt sparas i webbläsaren',
