@@ -685,17 +685,17 @@ export const BufferControls: React.FC<BufferControlsProps> = ({ jimuMapView, ske
     // Smart pluralization for units
     const formatUnit = (distance: number, unit: string): string => {
         const singularForms: { [key: string]: string } = {
-            'feet': 'Foot',
-            'meters': 'Meter',
-            'miles': 'Mile',
-            'kilometers': 'Kilometer'
+            'feet': nls('foot') || 'Foot',
+            'meters': nls('unit_Meters') || 'Meter',
+            'miles': nls('unit_Miles') || 'Mile',
+            'kilometers': nls('unit_Kilometers') || 'Kilometer'
         };
 
         const pluralForms: { [key: string]: string } = {
-            'feet': 'Feet',
-            'meters': 'Meters',
-            'miles': 'Miles',
-            'kilometers': 'Kilometers'
+            'feet': nls('unit_Feet') || 'Feet',
+            'meters': nls('meters') || 'Meters',
+            'miles': nls('miles') || 'Miles',
+            'kilometers': nls('kilometers') || 'Kilometers'
         };
 
         // Check if distance is exactly 1
@@ -733,7 +733,7 @@ export const BufferControls: React.FC<BufferControlsProps> = ({ jimuMapView, ske
                 try {
                     const distance = parent.bufferSettings.distance;
                     const unitDisplay = formatUnit(distance, parent.bufferSettings.unit);
-                    const newText = `${distance} ${unitDisplay} Buffer`;
+                    const newText = `${distance} ${unitDisplay} ${nls('buffer')}`;
 
                     const main = parent.bufferLabel.symbol as any;
                     if (main && main.type === 'text') {
@@ -810,7 +810,8 @@ export const BufferControls: React.FC<BufferControlsProps> = ({ jimuMapView, ske
 
             // Smart pluralization
             const unitDisplay = formatUnit(distance, unit);
-            const labelText = `${distance} ${unitDisplay} Buffer`;
+            console.log("unitDisplay: ", unitDisplay)
+            const labelText = `${distance} ${unitDisplay} ${nls('buffer')}`;
 
             // Use the exterior anchor for stellar cartography
             const labelPoint = getExteriorLabelPoint(bufferGeometry) || getLabelPoint(parent.geometry, bufferGeometry);
@@ -974,7 +975,7 @@ export const BufferControls: React.FC<BufferControlsProps> = ({ jimuMapView, ske
             symbol: buildBufferSymbol(parent),
             attributes: {
                 uniqueId: `buffer_${id}_${Date.now()}`,
-                name: `${a.name ?? 'Drawing'} Buffer`,
+                name: `${a.name ?? 'Drawing'} ${nls('buffer')}`,
                 parentId: id,
                 isBuffer: true,
                 hideFromList: true,

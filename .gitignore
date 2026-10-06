@@ -1,4 +1,4 @@
-# Installed dependencies (Experience Builder installs them from package.json)
+# Installed dependencies (Experience Builder installs these from package.json)
 node_modules/
 
 # Visual Studio cache / user state
@@ -15,3 +15,12 @@ build/
 __MACOSX/
 Thumbs.db
 *.log
+
+#VS Code stuff
+*.code-workspace
+.vscode/
+
+#Other stuff
+/temp
+.cline/
+.github/

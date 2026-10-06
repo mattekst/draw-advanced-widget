@@ -255,7 +255,7 @@ export const SnappingControls = (props: SnappingControlsProps): React.ReactEleme
             }
         } catch (err: any) {
             console.error('Error configuring snapping:', err);
-            const errorMsg = `Snapping failed: ${err.message}`;
+            const errorMsg = nls('snappingFailed', { error: err.message });
             setError(errorMsg);
             announce(nls('errorPrefix') + errorMsg, 'assertive');
         } finally {

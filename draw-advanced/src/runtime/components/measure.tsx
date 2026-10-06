@@ -206,7 +206,7 @@ const Measure = forwardRef<MeasureRef, MeasureProps>((props, ref) => {
 			typeof symbol.text === 'string';
 	}
 
-	//Built-in units TODO: byt till original med hårdkodad fallback
+	//Built-in units
 	const defaultAreaUnits = [
 		{ unit: 'square-kilometers', label: props.nls('squareKilometers') || 'Square Kilometers', abbreviation: 'km²', conversion: 0.000001 },
 		{ unit: 'square-miles', label: props.nls('squareMiles') || 'Square Miles', abbreviation: 'mi²', conversion: 3.86102e-7 },
