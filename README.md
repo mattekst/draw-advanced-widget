@@ -1,3 +1,5 @@
+## This Fork is a version 4.2.0 edition of Brian McLeer's draw advanced widget that is translated into swedish. Brian has in newer version of the widget a new way of translating widgets, so use the latest version of his widget instead.
+
 # Advanced Draw Widget for ArcGIS Experience Builder
 
 An advanced drawing widget for ArcGIS Experience Builder with a full measurement system, live tooltips, snapping, buffers, line arrows, rich text styling, a My Drawings manager with local-storage save, and import/export across GeoJSON, KML, zipped shapefile, and legacy JSON.
